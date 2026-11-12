@@ -703,6 +703,15 @@ html.editing .orbit{display:none}
 #editBtn[aria-pressed="true"]{background:var(--gold);color:var(--ink-on-gold)}
 @media (max-width:1199px){.orbit-side.left{bottom:calc(max(16px,env(safe-area-inset-bottom,0px)) + 68px + 280px)}}
 
+/* top section scrolls away with the page */
+@media (min-width:760px) and (min-height:640px){
+  html{scroll-padding-top:16px}
+  .hero{position:relative!important;top:auto!important;left:auto!important;right:auto!important;height:auto!important;margin:12px 12px 0}
+  .hero .h-gem{min-height:400px}
+  body > .ticker{margin-top:18px}
+}
+@media (min-width:1200px) and (min-height:640px){.orbit-side{top:50%}}
+
 /* motion */
 .gem-wrap{position:relative;min-width:0}
 #gem{display:block;width:100%;height:210px;margin-bottom:-26px;position:relative;z-index:2;pointer-events:none}
@@ -1328,7 +1337,7 @@ if(c&&c.getContext){
   }
   if(reduce){draw(0)}
   else{
-    let on=true,raf=0;const split=matchMedia('(min-width:760px) and (min-height:640px)');const loop=t=>{const hh=c.closest('header');if(!hh||split.matches||scrollY<hh.offsetTop+hh.offsetHeight+innerHeight)draw(t);if(on)raf=requestAnimationFrame(loop)};
+    let on=true,raf=0;const split=matchMedia('(max-width:0px)');const loop=t=>{const hh=c.closest('header');if(!hh||split.matches||scrollY<hh.offsetTop+hh.offsetHeight+innerHeight)draw(t);if(on)raf=requestAnimationFrame(loop)};
     new IntersectionObserver(es=>{const v=es[0].isIntersecting;if(v&&!on){on=true;raf=requestAnimationFrame(loop)}else if(!v){on=false;cancelAnimationFrame(raf)}}).observe(c);
     raf=requestAnimationFrame(loop);
   }
