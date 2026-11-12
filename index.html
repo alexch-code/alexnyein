@@ -671,6 +671,8 @@ body > footer{position:relative;z-index:1}
 .once{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:18px 20px;border:1px solid var(--glass-rim);border-radius:20px;background:linear-gradient(135deg,var(--glass-a),var(--glass-b));box-shadow:inset 0 1px 0 var(--glass-hi)}
 .once h3{font-family:var(--body);font-size:15px;font-weight:500;letter-spacing:0}
 .once b{font-family:var(--display);white-space:nowrap}
+  .once{flex-wrap:wrap}
+.once .pk-btn{flex-basis:100%;padding:9px 14px;font-size:13.5px}
 @media (max-width:900px){.pks,.onces{grid-template-columns:1fr}.pk-for{min-height:0}}
 .c-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .c-val{font-size:16px;user-select:all;-webkit-user-select:all}
@@ -1150,28 +1152,28 @@ html.editing .orbit{display:none}
       <article class="pk">
         <h3 class="pk-name">Essentials</h3>
         <p class="pk-for">Keep your Instagram and Facebook active and on-brand.</p>
-        <p class="pk-price"><b>$950</b> / month</p>
-        <ul><li>Instagram and Facebook management</li><li>8 reels or posts a month, edited from your footage</li><li>Captions and scheduling</li><li>Monthly results report</li></ul>
+        <p class="pk-price"><b>$1200</b> / month</p>
+        <ul><li>Instagram and Facebook management</li><li>6 reels or posts a month, edited from your footage</li><li>Captions and scheduling</li><li>Monthly results report</li></ul>
         <button class="pk-btn" type="button" data-pk>Request this package</button>
       </article>
       <article class="pk rec"><span class="pk-tag">Recommended</span>
         <h3 class="pk-name">Growth</h3>
         <p class="pk-for">Fresh content shot for you every month, plus paid ads.</p>
-        <p class="pk-price"><b>$1,800</b> / month</p>
-        <ul><li>Everything in Essentials</li><li>16 reels or posts a month</li><li>One photo and video shoot a month</li><li>Meta ads set-up and management</li><li>Monthly strategy call</li></ul>
+        <p class="pk-price"><b>$2100</b> / month</p>
+        <ul><li>Everything in Essentials</li><li>12 reels or posts a month</li><li>One photo and video shoot a month</li><li>Meta ads set-up and management</li><li>Monthly strategy call</li></ul>
         <button class="pk-btn" type="button" data-pk>Request this package</button>
       </article>
       <article class="pk">
         <h3 class="pk-name">Full Digital</h3>
         <p class="pk-for">Content, website and the systems behind them, run by one person.</p>
-        <p class="pk-price"><b>$3,500</b> / month</p>
+        <p class="pk-price"><b>$4,200</b> / month</p>
         <ul><li>Everything in Growth</li><li>Shopify website updates and product listings</li><li>AI-generated product video</li><li>Custom dashboards and internal tools</li><li>Weekly check-in</li></ul>
         <button class="pk-btn" type="button" data-pk>Request this package</button>
       </article>
     </div>
     <div class="onces">
       <div class="once"><h3>Account audit and 90-day plan</h3><b>$500</b></div>
-      <div class="once"><h3>Shopify website build</h3><b>Quote</b></div>
+      <div class="once"><h3>Shopify website build</h3><b>From $1,500</b><button class="pk-btn" type="button" data-pk>Request</button></div>
       <div class="once"><h3>Custom dashboard or internal system</h3><b>Quote</b></div>
     </div>
     <p class="note">Ad spend is paid directly to Meta and is not included. Scope and price are confirmed in writing before work starts.</p>
@@ -1473,7 +1475,7 @@ if(rq){
   const closeRq=()=>{rq.classList.remove('open');rq.setAttribute('aria-hidden','true');if(lastBtn)lastBtn.focus()};
   document.querySelectorAll('[data-pk]').forEach(b=>b.addEventListener('click',()=>{
     if(document.documentElement.classList.contains('editing'))return;
-    const card=b.closest('.pk'),name=card.querySelector('.pk-name').textContent.trim(),price=card.querySelector('.pk-price').textContent.replace(/\s+/g,' ').trim();
+    const card=b.closest('.pk,.once'),name=card.querySelector('.pk-name,h3').textContent.trim(),price=card.querySelector('.pk-price,b').textContent.replace(/\s+/g,' ').trim();
     title.textContent='Request: '+name;
     msg.value='Hi Alex, I saw your portfolio and I\'m interested in the '+name+' package ('+price+').\n\nMy brand: \nBest way to reach me: ';
     lastBtn=b;rq.classList.add('open');rq.setAttribute('aria-hidden','false');rq.querySelector('.rq-close').focus();
