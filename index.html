@@ -954,6 +954,61 @@ h2 .mute,.two .mute{color:var(--muted);opacity:.7}
   .wd{opacity:1;filter:none}
   .ribbon,.fl-dot,.pipe-dot,.ask-bg,.in-ring,.kc-move{animation:none!important}
 }
+
+/* ===== v20: centered header, small-medium scale ===== */
+body{font-size:15px}
+.wrap{max-width:1040px}
+body > section{padding-block:60px!important}
+body > section.story{padding:0!important}
+h2{font-size:clamp(24px,2.8vw,34px)!important;line-height:1.12!important}
+.two{font-size:clamp(26px,3.2vw,40px)!important;margin-bottom:26px}
+.stk-txt h2{font-size:clamp(24px,2.8vw,36px)!important}
+.contact h2{font-size:clamp(28px,3.4vw,42px)!important}
+.lede,.sub-p{font-size:15px}
+.label{font-size:10.5px}
+.story{height:200vh}
+.story-txt{font-size:clamp(22px,2.9vw,38px)}
+.sc{min-height:220px;padding:22px 20px 18px}
+.sc-n{font-size:clamp(40px,4.4vw,60px)}
+.dna-h{margin-top:52px}
+.dna-seg::after{height:42px}
+.dna-seg b{font-size:18px}
+.sv-art{height:150px}
+.sv h3{font-size:19px}
+.bx h3{font-size:17px}
+.bx-ui{min-height:150px}
+.rep-n{font-size:34px}
+.stackwrap{margin-top:64px}
+.lstack{height:400px}
+#reel .dreel{max-height:62vh}
+#reel .reel-txt{font-size:clamp(18px,2.4vw,32px)!important}
+.ask{padding:40px 6% 20px}
+.ask-t{font-size:15px}
+
+/* header: one centered column */
+.hero{min-height:0!important;display:block!important;padding:0 0 36px!important}
+.hero > .hero3{display:flex!important;flex-direction:column;align-items:center;text-align:center;max-width:820px!important;margin:0 auto!important;padding:4px 16px 0!important;gap:0!important}
+.hero .h-chart,.hero .gem-cap{display:none!important}
+.hero .h-gem{order:0;position:relative;width:200px;height:150px;min-height:0!important;flex:none!important;margin:0 auto 6px}
+.hero .h-gem #gem{position:absolute!important;inset:0;width:100%!important;height:100%!important}
+.hero .h-gem .gem-halo{inset:-40% -60%!important}
+.hero .h-text{order:1;grid-column:auto!important;display:flex;flex-direction:column;align-items:center;width:100%}
+.hello{font-size:14px;margin-bottom:4px}
+.big{font-size:clamp(32px,3.8vw,48px)!important;margin:0 0 14px}
+.hero .h-text .intro{max-width:56ch;font-size:15px!important;margin:12px auto 0}
+.hero .roles{justify-content:center;margin-top:16px!important}
+.hero .roles .chip{font-size:12px}
+.status{justify-content:center;margin-top:20px}
+.flow{width:100%;max-width:720px;margin:26px auto 0;text-align:left}
+.fn{padding:9px 10px}
+.hero .gem-halo{display:none!important}
+.ticker-track{font-size:12px!important}
+.slide h3{font-size:clamp(22px,2.4vw,28px)!important}
+.sc{min-height:200px}
+@media (max-width:900px){
+  .hero .h-gem{width:160px;height:120px}
+  .flow{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 </style>
 </head>
 <body>
@@ -1022,7 +1077,7 @@ h2 .mute,.two .mute{color:var(--muted);opacity:.7}
       <h1 class="big rise" style="--d:.3s">Digital,<br>end to end.</h1>
       <p class="label rise" style="--d:.35s">Social media · Content · Web · Systems — New York</p>
       
-      <p class="intro rise" style="--d:1.25s">Since November 2025 I've handled everything online for <strong>Diamonds Flash NYC</strong> at 30 West 47th Street: the Instagram and Facebook content, the photos and video, the website, and the internal software the team runs the business on.</p>
+      <p class="intro rise" style="--d:1.25s">Since November 2025, two days a week, I've handled everything online for <strong>Diamonds Flash NYC</strong> at 30 West 47th Street: the Instagram and Facebook content, the photos and video, the website, and the internal software the team runs the business on.</p>
       <div class="roles"><span class="chip" style="--i:0">Content strategy</span><span class="chip" style="--i:1">Reels &amp; video editing</span><span class="chip" style="--i:2">Product photography</span><span class="chip" style="--i:3">AI video</span><span class="chip" style="--i:4">Meta ads</span><span class="chip" style="--i:5">Shopify build</span><span class="chip" style="--i:6">Custom dashboards</span></div>
       <div class="status rise" style="--d:1.4s">
         <div class="st-pill"><span class="st-dot"></span><span><b>Open to new projects</b><small>New York City</small></span></div>
@@ -1030,7 +1085,7 @@ h2 .mute,.two .mute{color:var(--muted);opacity:.7}
       </div>
       <div class="flow" aria-label="How a post gets made: shoot, edit, post, sell">
         <svg class="flow-line" viewBox="0 0 400 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 10H400"/><circle class="fl-dot" r="2.6" cy="10"/></svg>
-        <div class="fn"><span class="fn-k">01 · Shoot</span><b>In the showroom</b><small><i></i>Daily</small></div>
+        <div class="fn"><span class="fn-k">01 · Shoot</span><b>In the showroom</b><small><i></i>2 days a week</small></div>
         <div class="fn"><span class="fn-k">02 · Edit</span><b>Reels &amp; photo</b><small><i></i>Same day</small></div>
         <div class="fn"><span class="fn-k">03 · Post</span><b>Instagram + FB</b><small><i></i>Scheduled</small></div>
         <div class="fn"><span class="fn-k">04 · Sell</span><b>diamondsflash.com</b><small><i class="live"></i>Live</small></div>
@@ -1062,7 +1117,7 @@ h2 .mute,.two .mute{color:var(--muted);opacity:.7}
     <div class="snap">
       <div class="sc" data-on>
         <div class="sc-n"><span data-count="12">12</span></div>
-        <p class="sc-k">Months at<br><b>Diamonds Flash NYC</b></p>
+        <p class="sc-k">Months at Diamonds Flash NYC<br><b>2 days a week</b></p>
         <div class="tl"><div class="tl-fill"></div>
           <span style="--x:0">Nov '25</span><span style="--x:.25">Feb</span><span style="--x:.5">May</span><span style="--x:.75">Aug</span><span style="--x:1">Nov '26</span>
         </div>
@@ -1075,7 +1130,7 @@ h2 .mute,.two .mute{color:var(--muted);opacity:.7}
       <div class="sc" data-on>
         <div class="sc-n">4</div>
         <p class="sc-k">Disciplines<br><b>run by one person</b></p>
-        <ul class="sc-list"><li><i style="--c:var(--t1)"></i>Social &amp; content<span>Daily</span></li><li><i style="--c:var(--t2)"></i>Photo &amp; video<span>Weekly</span></li><li><i style="--c:var(--t3)"></i>Shopify website<span>Live</span></li><li><i style="--c:var(--t4)"></i>Store software<span>Built</span></li></ul>
+        <ul class="sc-list"><li><i style="--c:var(--t1)"></i>Social &amp; content<span>2 days/wk</span></li><li><i style="--c:var(--t2)"></i>Photo &amp; video<span>Weekly</span></li><li><i style="--c:var(--t3)"></i>Shopify website<span>Live</span></li><li><i style="--c:var(--t4)"></i>Store software<span>Built</span></li></ul>
       </div>
     </div>
 
