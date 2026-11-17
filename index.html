@@ -1009,6 +1009,103 @@ h2{font-size:clamp(24px,2.8vw,34px)!important;line-height:1.12!important}
   .hero .h-gem{width:160px;height:120px}
   .flow{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* ===== v21: compact sections + designed ticker ===== */
+body > section{padding-block:44px!important}
+.sec-head{margin-bottom:26px!important}
+.two{margin-bottom:18px!important}
+.lede{margin-top:8px!important}
+
+/* statement — no longer pinned */
+.story{height:auto!important}
+.story-pin{position:relative!important;height:auto!important;padding:56px 0}
+.story-txt{max-width:26ch}
+.ribbon{width:min(46vw,420px);opacity:.25}
+.story-rule{margin-top:26px}
+
+/* snapshot / skills / services */
+.snap{gap:10px}
+.sc{min-height:168px!important;padding:18px 18px 14px}
+.sc-n{font-size:clamp(36px,3.6vw,48px)}
+.sc-k{margin-top:6px;font-size:12.5px}.sc-k b{font-size:14px}
+.sc-list{font-size:12px}.sc-list li{padding:5px 0}
+.sq{gap:5px}
+.dna-h{margin-top:36px!important}
+.dna-seg::after{height:30px}
+.dna-seg b{font-size:16px}
+.dna-cap{margin-top:10px;font-size:13.5px}
+.sv{padding:18px 16px 4px}
+.sv-art{height:118px;margin-bottom:14px;border-radius:16px}
+.sv h3{font-size:17px}.sv p{font-size:13px}
+.rings i:nth-child(1){--s:100px}.rings i:nth-child(2){--s:150px}.rings i:nth-child(3){--s:200px}
+.mini-reel{width:36px;height:56px}
+
+/* how I work */
+.pr-head{margin-bottom:22px}
+.bento{gap:10px}
+.bx{padding:14px 14px 16px;border-radius:18px}
+.bx-ui{min-height:124px!important;margin-bottom:12px}
+.pl-row{padding:6px 10px;margin-bottom:4px}
+.kb-col{min-height:104px}
+.kc{padding:5px 8px;margin-bottom:4px}
+.rep-n{font-size:28px}
+.spark{height:50px}
+.ci-top{margin-bottom:14px}.ci-foot{margin-top:14px}
+.stackwrap{margin-top:40px!important}
+.lstack{height:300px!important}
+.ly{top:calc(24px + var(--i)*36px)}
+.stackwrap.on .ly{top:calc(6px + var(--i)*50px)}
+.plate{width:150px;height:150px;margin-top:-46px}
+.ly-l{left:calc(12% + 190px);top:14px}
+
+/* existing sections */
+.stage{max-height:340px}
+.clips{gap:10px!important}
+.reels{gap:10px!important}
+.features{margin-top:22px!important}
+.feat{padding:12px 0!important}
+.tiles{margin-top:28px!important}
+.compare{gap:20px!important}
+.sub-h{margin-top:36px!important}
+.steps{margin-top:22px!important}
+#reel .dreel{max-height:50vh!important}
+.ask{margin:24px 0 4px;padding:30px 6% 16px}
+@media (min-width:761px){
+  .gallery{grid-template-columns:repeat(6,1fr)!important;gap:8px!important}
+  .g-item{aspect-ratio:1!important}
+  .clip video{aspect-ratio:4/5!important}
+  .shot{max-width:820px;margin-inline:auto}
+}
+
+.story-txt{font-size:clamp(20px,2.4vw,32px)!important}
+.story-pin{padding:40px 0}
+.hero .h-gem{width:170px!important;height:120px!important;margin-bottom:0!important}
+.hero{padding-bottom:26px!important}
+.big{margin-bottom:10px!important}
+.hero .roles{margin-top:12px!important}
+.status{margin-top:14px!important}
+.flow{margin-top:18px!important}
+/* designed moving text */
+.tk2{padding:0!important;display:flex;flex-direction:column;gap:0;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.tk-row{overflow:hidden;padding:11px 0}
+.tk-row+.tk-row{border-top:1px solid var(--line);padding:8px 0}
+.tk2 .ticker-track{align-items:center}
+.tk2 .ticker-track span{padding-right:0}
+.tk-a{gap:22px;padding-right:22px;font-family:var(--display);font-size:13px!important;letter-spacing:.14em;text-transform:uppercase}
+.tk-w{color:var(--fg)}
+.tk-w.o{color:transparent;-webkit-text-stroke:.8px color-mix(in srgb,var(--fg) 70%,transparent)}
+.spk{width:12px;height:12px;flex:none;fill:var(--t2);animation:spin 6s linear infinite}
+.tk-a .spk:nth-of-type(2n){fill:var(--t1)}.tk-a .spk:nth-of-type(3n){fill:var(--t3)}
+.tk-b{gap:8px;padding-right:8px;font-size:12px!important;letter-spacing:0!important;text-transform:none!important}
+.tk-pill{display:inline-flex;align-items:center;gap:7px;padding:4px 11px!important;border-radius:999px;border:1px solid var(--line);
+  background:linear-gradient(135deg,var(--glass-a),var(--glass-b));color:var(--fg)}
+.tk-pill i{width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+@media (prefers-reduced-motion:no-preference){
+  .tk-a{animation:tick 50s linear infinite!important}
+  .tk-b{animation:tick 70s linear infinite reverse!important}
+  .tk2:hover .ticker-track{animation-play-state:paused!important}
+}
 </style>
 </head>
 <body>
@@ -1096,10 +1193,10 @@ h2{font-size:clamp(24px,2.8vw,34px)!important;line-height:1.12!important}
 
 </header>
 
-<div class="ticker" aria-hidden="true"><div class="ticker-track">
-  <span>Content strategy<b>◆</b></span><span>Reels &amp; video editing<b>◆</b></span><span>Product photography<b>◆</b></span><span>AI video<b>◆</b></span><span>Meta ads<b>◆</b></span><span>Shopify websites<b>◆</b></span><span>Custom dashboards<b>◆</b></span><span>West 47th Street, New York<b>◆</b></span>
-  <span>Content strategy<b>◆</b></span><span>Reels &amp; video editing<b>◆</b></span><span>Product photography<b>◆</b></span><span>AI video<b>◆</b></span><span>Meta ads<b>◆</b></span><span>Shopify websites<b>◆</b></span><span>Custom dashboards<b>◆</b></span><span>West 47th Street, New York<b>◆</b></span>
-</div></div>
+<div class="ticker tk2" aria-hidden="true">
+  <div class="tk-row"><div class="ticker-track tk-a"><span class="tk-w">Content strategy</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w o">Reels &amp; video</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w">Product photography</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w o">AI video</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w">Meta ads</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w o">Shopify websites</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w">Custom dashboards</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w o">West 47th Street</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w">Content strategy</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w o">Reels &amp; video</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w">Product photography</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w o">AI video</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w">Meta ads</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w o">Shopify websites</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w">Custom dashboards</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg><span class="tk-w o">West 47th Street</span><svg class="spk" viewBox="0 0 24 24"><path d="M12 1.5l2.6 7.9 7.9 2.6-7.9 2.6L12 22.5l-2.6-7.9L1.5 12l7.9-2.6z"/></svg></div></div>
+  <div class="tk-row rev"><div class="ticker-track tk-b"><span class="tk-pill"><i style="--c:var(--t1)"></i>1.74M Instagram views</span><span class="tk-pill"><i style="--c:var(--t3)"></i>10.7× reach</span><span class="tk-pill"><i style="--c:var(--t2)"></i>31× interactions</span><span class="tk-pill"><i style="--c:var(--t4)"></i>8,157 followers</span><span class="tk-pill"><i style="--c:var(--t1)"></i>87% reached non-followers</span><span class="tk-pill"><i style="--c:var(--t3)"></i>11.9K website taps</span><span class="tk-pill"><i style="--c:var(--t2)"></i>30 W 47th St · NYC</span><span class="tk-pill"><i style="--c:var(--t4)"></i>Since Nov 2025</span><span class="tk-pill"><i style="--c:var(--t1)"></i>1.74M Instagram views</span><span class="tk-pill"><i style="--c:var(--t3)"></i>10.7× reach</span><span class="tk-pill"><i style="--c:var(--t2)"></i>31× interactions</span><span class="tk-pill"><i style="--c:var(--t4)"></i>8,157 followers</span><span class="tk-pill"><i style="--c:var(--t1)"></i>87% reached non-followers</span><span class="tk-pill"><i style="--c:var(--t3)"></i>11.9K website taps</span><span class="tk-pill"><i style="--c:var(--t2)"></i>30 W 47th St · NYC</span><span class="tk-pill"><i style="--c:var(--t4)"></i>Since Nov 2025</span></div></div>
+</div>
 
 <section class="story" id="story" aria-label="Summary">
   <div class="story-pin">
@@ -2009,7 +2106,8 @@ if(lb&&items.length){
       if(n.nodeType===3){var f=document.createDocumentFragment();n.textContent.split(/(\s+)/).forEach(function(p){if(!p)return;if(/^\s+$/.test(p)){f.appendChild(document.createTextNode(p))}else{var s=document.createElement('span');s.className='wd';s.textContent=p;f.appendChild(s);words.push(s)}});node.replaceChild(f,n)}
       else if(n.nodeType===1)split(n)})})(st);
     var sec=st.closest('.story'),rule=sec.querySelector('.story-rule');
-    var upd=function(){var r=sec.getBoundingClientRect(),h=sec.offsetHeight-innerHeight;var p=Math.min(1,Math.max(0,-r.top/(h*.85)));
+    var auto=0,timer=null;new IntersectionObserver(function(es){if(es[0].isIntersecting&&!timer){timer=setInterval(function(){auto++;upd();if(auto>=words.length)clearInterval(timer)},70)}},{threshold:.25}).observe(sec);
+    var upd=function(){var r=sec.getBoundingClientRect();var p=Math.min(1,Math.max(0,(innerHeight*.85-r.top)/(innerHeight*.55)));p=Math.max(p,auto/words.length);
       var n=Math.round(p*words.length);words.forEach(function(w,i){w.classList.toggle('on',RM||i<n)});rule.style.setProperty('--p',p)};
     addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);upd();
   }
