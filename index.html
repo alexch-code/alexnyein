@@ -1106,6 +1106,20 @@ body > section{padding-block:44px!important}
   .tk-b{animation:tick 70s linear infinite reverse!important}
   .tk2:hover .ticker-track{animation-play-state:paused!important}
 }
+
+/* ===== v22: skills & results focus ===== */
+.hero .h-gem{display:none!important}
+.hero > .hero3{padding-top:18px!important}
+#work,#audience,.stackwrap{display:none!important}
+.orb[href="#work"],.orb[href="#audience"]{display:none!important}
+/* stills carousel */
+.gallery{display:grid!important;grid-template-columns:none!important;grid-auto-flow:column;grid-auto-columns:calc((100% - 32px)/5);gap:8px!important;
+  overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-bottom:2px}
+.gallery::-webkit-scrollbar{display:none}
+.gallery .g-item{scroll-snap-align:start;aspect-ratio:4/5!important}
+.gal-nav{display:flex;justify-content:center;gap:10px;margin-top:14px}
+.gal-nav .car-btn{width:38px;height:38px;font-size:15px}
+@media (max-width:760px){.gallery{grid-auto-columns:44%}}
 </style>
 </head>
 <body>
@@ -1366,7 +1380,7 @@ body > section{padding-block:44px!important}
       <figure class="clip"><video src="assets/loose-row.mp4" poster="assets/loose-row-poster.jpg" muted loop playsinline preload="metadata" aria-label="A row of loose stones"></video><figcaption>A row of loose stones</figcaption></figure>
     </div>
     <h3 class="sub-h">Stills</h3>
-    <p class="sub-p">Tap any photo to view it larger.</p>
+    <p class="sub-p">Swipe or use the arrows. Tap any photo to view it larger.</p>
     <div class="gallery">
       <button class="g-item" type="button" data-full="assets/p2752.jpg"><img src="assets/p2752.jpg" alt="Marquise, held in tweezers" loading="lazy"><span>Marquise, held in tweezers</span></button>
       <button class="g-item" type="button" data-full="assets/p2733.jpg"><img src="assets/p2733.jpg" alt="Cushion cut, macro" loading="lazy"><span>Cushion cut, macro</span></button>
@@ -1381,6 +1395,7 @@ body > section{padding-block:44px!important}
       <button class="g-item" type="button" data-full="assets/p2707.jpg"><img src="assets/p2707.jpg" alt="Emerald solitaire, side view" loading="lazy"><span>Emerald solitaire, side view</span></button>
       <button class="g-item" type="button" data-full="assets/p2683.jpg"><img src="assets/p2683.jpg" alt="Oval ring, pavé shank" loading="lazy"><span>Oval ring, pavé shank</span></button>
     </div>
+    <div class="gal-nav"><button class="car-btn gal-prev" type="button" aria-label="Previous photos">←</button><button class="car-btn gal-next" type="button" aria-label="Next photos">→</button></div>
   </div>
 </section>
 
@@ -1673,7 +1688,7 @@ body > section{padding-block:44px!important}
 <section id="packages">
   <div class="wrap">
     <div class="sec-head">
-      <p class="label">07 · Packages</p>
+      <p class="label">06 · Packages</p>
       <div>
         <h2><span class="mute">Pick</span> how much of it I run</h2>
         <p class="lede">Monthly packages for brands that sell in person and online. Choose one and send me a request. I reply with a written scope before anything starts.</p>
@@ -2150,6 +2165,18 @@ if(lb&&items.length){
   new IntersectionObserver(function(es){vis=es[0].isIntersecting;if(vis)size();if(vis&&!RM){last=0;requestAnimationFrame(loop)}else if(RM){draw()}},{threshold:.2}).observe(box);
   addEventListener('resize',size);size();if(RM){P.forEach(function(p){p.x=p.tx;p.y=p.ty;p.a=p.ta});draw()}
 })();
+</script>
+<script>
+(function(){var g=document.querySelector('.gallery');if(!g)return;
+  var step=function(d){var w=g.querySelector('.g-item');var s=w?w.getBoundingClientRect().width+8:g.clientWidth/2;
+    if(d>0&&g.scrollLeft+g.clientWidth>=g.scrollWidth-4)g.scrollTo({left:0});else g.scrollBy({left:d*s})};
+  document.querySelector('.gal-prev').addEventListener('click',function(){step(-1)});
+  document.querySelector('.gal-next').addEventListener('click',function(){step(1)});
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var vis=false,hold=false;new IntersectionObserver(function(e){vis=e[0].isIntersecting},{threshold:.4}).observe(g);
+  g.addEventListener('pointerenter',function(){hold=true});g.addEventListener('pointerleave',function(){hold=false});
+  g.addEventListener('touchstart',function(){hold=true},{passive:true});
+  setInterval(function(){if(vis&&!hold&&!document.hidden)step(1)},3200)})();
 </script>
 </body>
 </html>
