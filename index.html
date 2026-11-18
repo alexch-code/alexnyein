@@ -1120,6 +1120,36 @@ body > section{padding-block:44px!important}
 .gal-nav{display:flex;justify-content:center;gap:10px;margin-top:14px}
 .gal-nav .car-btn{width:38px;height:38px;font-size:15px}
 @media (max-width:760px){.gallery{grid-auto-columns:44%}}
+
+/* ===== v23: the page as a map route ===== */
+#route{position:absolute;left:0;top:0;z-index:2;pointer-events:none;overflow:visible}
+.r-base{fill:none;stroke:color-mix(in srgb,var(--fg) 30%,transparent);stroke-width:1.6;stroke-dasharray:1 7;stroke-linecap:round}
+.r-prog{fill:none;stroke:url(#rg);stroke-width:2.4;stroke-linecap:round}
+.r-glow{fill:none;stroke:url(#rg);stroke-width:8;stroke-linecap:round;opacity:.22;filter:blur(4px)}
+.r-node circle{fill:var(--bg);stroke:color-mix(in srgb,var(--fg) 40%,transparent);stroke-width:1.3;transition:fill .4s,stroke .4s}
+.r-node text{font:600 10px var(--display);fill:var(--muted);text-anchor:middle;dominant-baseline:central;transition:fill .4s}
+.r-node.on circle{fill:var(--fg);stroke:var(--fg)}
+.r-node.on text{fill:var(--bg)}
+.r-node.start circle,.r-node.end circle{stroke:var(--t2)}
+.r-halo{fill:rgba(255,214,110,.28);animation:rPulse 2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.r-core{fill:#FFD66E}
+@keyframes rPulse{50%{transform:scale(1.6);opacity:.35}}
+@media (min-width:761px) and (max-width:1199px){
+  body > section, body > .ticker{margin-left:48px!important;margin-right:48px!important;width:auto!important;max-width:none!important}
+}
+/* information alternates sides with the route */
+@media (min-width:761px){
+  .stop-r .sec-head{grid-template-columns:1fr 200px}
+  .stop-r .sec-head > .label{order:2;text-align:right}
+  .stop-r .sec-head > div{text-align:right}
+  .stop-r .sec-head .lede{margin-left:auto}
+  .stop-r .two,.stop-r .dna-cap{text-align:right}
+  .stop-r .pr-head{flex-direction:row-reverse;text-align:right}
+  .stop-r .story-txt{margin-left:auto;text-align:right}
+  .stop-r .story-rule{margin-left:auto}
+  .stop-r .ribbon{right:auto;left:-6%}
+}
+@media (prefers-reduced-motion:reduce){.r-halo{animation:none}}
 </style>
 </head>
 <body>
@@ -2177,6 +2207,51 @@ if(lb&&items.length){
   g.addEventListener('pointerenter',function(){hold=true});g.addEventListener('pointerleave',function(){hold=false});
   g.addEventListener('touchstart',function(){hold=true},{passive:true});
   setInterval(function(){if(vis&&!hold&&!document.hidden)step(1)},3200)})();
+</script>
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg');svg.id='route';svg.setAttribute('aria-hidden','true');
+  svg.innerHTML='<defs><linearGradient id="rg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1000">'+
+    '<stop offset="0" stop-color="#9DB4D3"/><stop offset=".35" stop-color="#A9CBA6"/><stop offset=".7" stop-color="#D6C9A2"/><stop offset="1" stop-color="#B7B3EE"/></linearGradient></defs>'+
+    '<path class="r-base"/><path class="r-glow"/><path class="r-prog"/><g class="r-nodes"></g><g class="r-dot"><circle class="r-halo" r="9"/><circle class="r-core" r="4"/></g>';
+  document.body.appendChild(svg);
+  var base=svg.querySelector('.r-base'),glow=svg.querySelector('.r-glow'),prog=svg.querySelector('.r-prog'),nodesG=svg.querySelector('.r-nodes'),dot=svg.querySelector('.r-dot'),grad=svg.querySelector('#rg');
+  var pts=[],total=0,nodes=[],built=false;
+  function build(){
+    var stops=[].slice.call(document.querySelectorAll('body > .ticker, body > section')).filter(function(s){return s.offsetHeight>0});
+    if(stops.length<2)return;
+    svg.setAttribute('height',0);
+    var vw=document.documentElement.clientWidth,H=document.documentElement.scrollHeight,sy=scrollY;
+    var g=stops[0].getBoundingClientRect().left,zig=g>=40,xL=zig?(g>=90?g-28:g/2):Math.max(5,g/2),xR=vw-xL;
+    svg.setAttribute('width',vw);svg.setAttribute('height',H);grad.setAttribute('y2',H);
+    var R=stops.map(function(s,i){var r=s.getBoundingClientRect();var side=zig&&i%2?'R':'L';
+      s.classList.toggle('stop-r',side==='R');s.classList.toggle('stop-l',side==='L');
+      return{top:r.top+sy,bot:r.bottom+sy,x:side==='R'?xR:xL}});
+    var d='M'+R[0].x+' '+(R[0].top-9);
+    R.forEach(function(r,i){d+=' V'+(r.bot-30);var n=R[i+1];if(n){var gm=(r.bot+n.top)/2;
+      d+=n.x===r.x?' V'+(n.top+30):' C'+r.x+' '+gm+' '+n.x+' '+gm+' '+n.x+' '+(n.top+30)}});
+    base.setAttribute('d',d);glow.setAttribute('d',d);prog.setAttribute('d',d);
+    total=prog.getTotalLength();[prog,glow].forEach(function(p){p.style.strokeDasharray=total;p.style.strokeDashoffset=total});
+    pts=[];for(var l=0;l<=total;l+=6){var p=prog.getPointAtLength(l);pts.push([l,p.x,p.y])}
+    nodesG.innerHTML='';nodes=[];var small=!zig;
+    R.forEach(function(r,i){var y=i===0?r.top-9:r.top+46,last=i===R.length-1;
+      var gEl=document.createElementNS(NS,'g');gEl.setAttribute('class','r-node'+(i===0?' start':last?' end':''));
+      gEl.setAttribute('transform','translate('+r.x+' '+y+')');
+      gEl.innerHTML='<circle r="'+(small?6:12)+'"/>'+(small?'':'<text>'+(i===0?'★':last?'✉':i)+'</text>');
+      nodesG.appendChild(gEl);nodes.push([y,gEl])});
+    built=true;update();
+  }
+  function update(){if(!built||!pts.length)return;var ty=scrollY+innerHeight*.55,lo=0,hi=pts.length-1;
+    if(ty<=pts[0][2])hi=0;else{while(lo<hi){var m=(lo+hi)>>1;if(pts[m][2]<ty)lo=m+1;else hi=m}}
+    var p=pts[hi];[prog,glow].forEach(function(e){e.style.strokeDashoffset=total-p[0]});
+    dot.setAttribute('transform','translate('+p[1]+' '+p[2]+')');
+    nodes.forEach(function(n){n[1].classList.toggle('on',n[0]<=ty)})}
+  var raf=0;addEventListener('scroll',function(){if(!raf)raf=requestAnimationFrame(function(){raf=0;update()})},{passive:true});
+  var tm=0;function later(){clearTimeout(tm);tm=setTimeout(build,150)}
+  addEventListener('resize',later);addEventListener('load',later);
+  if(window.ResizeObserver)new ResizeObserver(later).observe(document.body);
+  build();
+})();
 </script>
 </body>
 </html>
