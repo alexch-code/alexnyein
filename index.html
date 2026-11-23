@@ -305,6 +305,26 @@ kbd{border:none;background:linear-gradient(180deg,#4a4f58,#33373e);box-shadow:in
 @media (max-width:760px){.loc:nth-of-type(odd) .pn,.loc:nth-of-type(even) .pn{--ry:0deg;--rx:4deg}.phone,.shop{transform:none}.wpt{width:40px;height:40px}
   #street{transform:rotateX(26deg)}}
 @media (prefers-reduced-motion:reduce){.pn{transition:none}}
+
+/* ===== walker (original guide character) ===== */
+#walker{position:absolute;left:0;top:0;width:74px;height:124px;z-index:2;pointer-events:none;will-change:transform;transition:transform .18s linear;filter:drop-shadow(0 8px 6px rgba(0,0,0,.45))}
+#walker svg{display:block;overflow:visible;transition:transform .25s}
+#walker.flip svg{transform:scaleX(-1)}
+#walker g{transform-box:view-box}
+.w-lg1,.w-lg2{transform-origin:30px 58px}.w-ar1,.w-ar2{transform-origin:31px 35px}.w-body{transform-origin:30px 96px}
+#walker.walking .w-lg1{animation:wsw .42s ease-in-out infinite alternate}
+#walker.walking .w-lg2{animation:wsw .42s ease-in-out infinite alternate-reverse}
+#walker.walking .w-ar1{animation:wsw2 .42s ease-in-out infinite alternate-reverse}
+#walker.walking .w-ar2{animation:wsw2 .42s ease-in-out infinite alternate}
+#walker.walking .w-body{animation:wbob .21s ease-in-out infinite alternate}
+#walker:not(.walking) .w-body{animation:wbreath 2.4s ease-in-out infinite}
+#walker.point:not(.walking) .w-ar1{transform:rotate(-115deg);transition:transform .3s}
+@keyframes wsw{from{transform:rotate(-24deg)}to{transform:rotate(24deg)}}
+@keyframes wsw2{from{transform:rotate(-30deg)}to{transform:rotate(30deg)}}
+@keyframes wbob{from{transform:translateY(0)}to{transform:translateY(-2.5px)}}
+@keyframes wbreath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.012)}}
+@media (max-width:760px){#walker{width:48px;height:80px}#walker svg{width:48px;height:80px}}
+@media (prefers-reduced-motion:reduce){#walker,#walker *{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -423,6 +443,29 @@ kbd{border:none;background:linear-gradient(180deg,#4a4f58,#33373e);box-shadow:in
   <div class="zh"><p>The route</p><h2>Six stops across the work</h2><span>Follow the line. Enter any stop to open the work and the numbers.</span></div>
   <div class="world" id="world">
     <svg id="route" aria-hidden="true"><path class="r-edge"/><path class="r-base"/><path class="r-ink"/></svg>
+    <div id="walker" aria-hidden="true"><svg viewBox="0 0 60 100" width="74" height="124">
+<defs>
+<linearGradient id="wJk" x1="0" x2="1"><stop offset="0" stop-color="#3a3f48"/><stop offset=".55" stop-color="#262a31"/><stop offset="1" stop-color="#16181c"/></linearGradient>
+<linearGradient id="wPt" x1="0" x2="1"><stop offset="0" stop-color="#8b919b"/><stop offset="1" stop-color="#5c616a"/></linearGradient>
+<radialGradient id="wSk" cx=".35" cy=".35" r=".8"><stop offset="0" stop-color="#e0b894"/><stop offset="1" stop-color="#a87a58"/></radialGradient>
+</defs>
+<ellipse class="w-sh" cx="30" cy="96" rx="15" ry="3.6" fill="rgba(0,0,0,.55)"/>
+<g class="w-body">
+ <g class="w-lg2"><path d="M27 58 L26 80 L25 90" stroke="#4d525a" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M21 89 h10 a2 2 0 0 1 2 2 v2 h-13 z" fill="#c9cdd4"/></g>
+ <g class="w-ar2"><path d="M27 35 L25 48 L26 58" stroke="#1c1f24" stroke-width="6" stroke-linecap="round" fill="none"/><circle cx="26" cy="59" r="2.6" fill="#a87a58"/></g>
+ <path d="M21 34 q9 -5 18 0 l2 24 q-11 4 -22 0 z" fill="url(#wJk)"/>
+ <path d="M27.5 32 h5 l-.5 22 h-4 z" fill="#eef0f3"/>
+ <path d="M24 33 l7 13 l7 -13" stroke="#FFC83D" stroke-width="1.4" fill="none"/>
+ <rect x="27" y="44" width="9" height="6.5" rx="1.4" fill="#0f1013"/><circle cx="31.5" cy="47.2" r="2.2" fill="#2c3037" stroke="#8b919b" stroke-width=".8"/>
+ <path d="M20 56 h21 v3 h-21 z" fill="#14161a"/>
+ <rect x="27" y="27" width="6" height="6" fill="#b0845f"/>
+ <ellipse cx="30" cy="20" rx="7.6" ry="8.6" fill="url(#wSk)"/>
+ <path d="M22.2 19 q-.6 -10 8.4 -10.4 q8.6 .2 8 9.6 q-2.4 -4.6 -7 -4.2 q-5 .2 -9.4 5z" fill="#17181b"/>
+ <circle cx="33.6" cy="20.4" r=".9" fill="#17181b"/>
+ <path d="M32.4 25 q1.6 .8 3 0" stroke="#7a5236" stroke-width=".8" fill="none" stroke-linecap="round"/>
+ <g class="w-lg1"><path d="M33 58 L34 80 L35 90" stroke="url(#wPt)" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M31 89 h10 a2 2 0 0 1 2 2 v2 h-13 z" fill="#f2f4f7"/><path d="M31 93 h13" stroke="#8b919b" stroke-width="1"/></g>
+ <g class="w-ar1"><path d="M35 35 L37 48 L36 58" stroke="#2f343c" stroke-width="6" stroke-linecap="round" fill="none"/><circle cx="36" cy="59" r="2.6" fill="url(#wSk)"/></g>
+</g></svg></div>
 <article class="loc" style="--c:#E9ECF1" data-say="I shoot short videos of real pieces and real customer requests, right in the showroom." data-title="Content &amp; reels" data-gain="93,225 views · 30 days">
   <div class="wpt" aria-hidden="true"><span>1</span></div>
   <div class="pn reveal">
@@ -617,8 +660,14 @@ kbd{border:none;background:linear-gradient(180deg,#4a4f58,#33373e);box-shadow:in
       if(Math.abs(x2-x1)<20)P.push([x1+(i%2?20:-20),(C[i][1]+n[1])/2]);else P.push([x1,ym-16],[(x1+x2)/2,ym],[x2,ym+16])}}
     var d=cr(P);[edge,base,ink].forEach(function(p){p.setAttribute('d',d)});total=ink.getTotalLength();ink.style.strokeDasharray=total;
     pts=[];for(var l=0;l<=total;l+=4){var p=ink.getPointAtLength(l);pts.push([l,p.x,p.y])}marks=C.slice(0,6).map(function(c){return c[1]});nodesXY=C;update()}
+  var wk=document.getElementById('walker'),wkT=0,wkL=-1;
+  function walk(i){if(!wk||!pts[i])return;var p=pts[i],m=innerWidth<=760,w=m?48:74,h=m?80:124;
+    wk.style.transform='translate('+(p[1]-w/2)+'px,'+(p[2]-h*.96)+'px)';
+    if(wkL>=0&&wkL!==i){var q=pts[Math.max(0,i-4)],dx=p[1]-q[1];if(Math.abs(dx)>1.5)wk.classList.toggle('flip',(i>wkL?dx:-dx)<0);
+      wk.classList.add('walking');clearTimeout(wkT);wkT=setTimeout(function(){wk.classList.remove('walking')},220)}
+    wkL=i;var nc=null;nodesXY.forEach(function(c){if(Math.hypot(c[0]-p[1],c[1]-p[2])<70)nc=c});wk.classList.toggle('point',!!nc);if(nc)wk.classList.toggle('flip',nc[0]>world.clientWidth/2)}
   function update(){if(!pts.length)return;var wr=world.getBoundingClientRect(),ty=innerHeight*.58-wr.top,i=0;while(i<pts.length-1&&pts[i][2]<ty)i++;curP={i:i,wr:wr};
-    ink.style.strokeDashoffset=total-pts[i][0];
+    ink.style.strokeDashoffset=total-pts[i][0];walk(i);
     var c=0;locs.forEach(function(l,j){var on=marks[j]<=ty;l.classList.toggle('on',on);if(on){c++;if(armed&&!seen[j])reach(l)}seen[j]=seen[j]||on});
     stars.forEach(function(s,j){s.classList.toggle('on',j<c)});
     var best=null,bd=1e9;$$('[data-say]').forEach(function(el){var r=el.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-innerHeight*.5);if(r.bottom>0&&r.top<innerHeight&&d<bd){bd=d;best=el}});if(best)setSay(best.dataset.say)}
