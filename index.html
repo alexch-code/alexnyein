@@ -325,6 +325,11 @@ kbd{border:none;background:linear-gradient(180deg,#4a4f58,#33373e);box-shadow:in
 @keyframes wbreath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.012)}}
 @media (max-width:760px){#walker{width:48px;height:80px}#walker svg{width:48px;height:80px}}
 @media (prefers-reduced-motion:reduce){#walker,#walker *{animation:none!important;transition:none!important}}
+
+#walker.is3d{width:110px;height:150px;filter:none}
+#walker.is3d svg{display:none}
+#walker .w3d{display:block;width:100%;height:100%}
+@media (max-width:760px){#walker.is3d{width:72px;height:98px}}
 </style>
 </head>
 <body>
@@ -661,8 +666,8 @@ kbd{border:none;background:linear-gradient(180deg,#4a4f58,#33373e);box-shadow:in
     var d=cr(P);[edge,base,ink].forEach(function(p){p.setAttribute('d',d)});total=ink.getTotalLength();ink.style.strokeDasharray=total;
     pts=[];for(var l=0;l<=total;l+=4){var p=ink.getPointAtLength(l);pts.push([l,p.x,p.y])}marks=C.slice(0,6).map(function(c){return c[1]});nodesXY=C;update()}
   var wk=document.getElementById('walker'),wkT=0,wkL=-1;
-  function walk(i){if(!wk||!pts[i])return;var p=pts[i],m=innerWidth<=760,w=m?48:74,h=m?80:124;
-    wk.style.transform='translate('+(p[1]-w/2)+'px,'+(p[2]-h*.96)+'px)';
+  function walk(i){if(!wk||!pts[i])return;var p=pts[i],m=innerWidth<=760,d3=wk.classList.contains('is3d'),w=d3?(m?72:110):(m?48:74),h=d3?(m?98:150):(m?80:124),fy=d3?.895:.96;
+    wk.style.transform='translate('+Math.max(-4,p[1]-w/2)+'px,'+(p[2]-h*fy)+'px)';
     if(wkL>=0&&wkL!==i){var q=pts[Math.max(0,i-4)],dx=p[1]-q[1];if(Math.abs(dx)>1.5)wk.classList.toggle('flip',(i>wkL?dx:-dx)<0);
       wk.classList.add('walking');clearTimeout(wkT);wkT=setTimeout(function(){wk.classList.remove('walking')},220)}
     wkL=i;var nc=null;nodesXY.forEach(function(c){if(Math.hypot(c[0]-p[1],c[1]-p[2])<70)nc=c});wk.classList.toggle('point',!!nc);if(nc)wk.classList.toggle('flip',nc[0]>world.clientWidth/2)}
@@ -695,6 +700,81 @@ kbd{border:none;background:linear-gradient(180deg,#4a4f58,#33373e);box-shadow:in
     rx.fillStyle='#fff';rx.font='700 18px Space Grotesk, sans-serif';rx.textAlign='center';rx.fillText('N',R,22);
     if(!RM)requestAnimationFrame(radar)}
   requestAnimationFrame(radar);
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var wk=document.getElementById('walker');if(!wk||!window.THREE)return;
+  var T=THREE,RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cv=document.createElement('canvas');cv.className='w3d';wk.appendChild(cv);
+  var R;try{R=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true})}catch(e){cv.remove();return}
+  wk.classList.add('is3d');
+  var S=new T.Scene(),C=new T.PerspectiveCamera(28,1,.1,200);
+  S.add(new T.HemisphereLight(0xffffff,0x1a1c20,.75));
+  var key=new T.DirectionalLight(0xffffff,.95);key.position.set(-6,12,10);S.add(key);
+  var rim=new T.DirectionalLight(0xffe3a0,.45);rim.position.set(6,8,-8);S.add(rim);
+  function M(c,r,m){return new T.MeshStandardMaterial({color:c,roughness:r==null?.7:r,metalness:m||0})}
+  var mJ=M(0x2a2e35,.75),mJ2=M(0x22252b,.8),mT=M(0xeef0f3,.9),mP=M(0x6a707a,.85),mSh=M(0xf2f4f7,.5),mSo=M(0x8b919b,.6),
+      mSk=M(0xc99872,.6),mH=M(0x17181b,.9),mC=M(0x101114,.35,.3),mL=M(0x8b919b,.3,.6),mA=M(0xffc83d,.5);
+  function mesh(g,m,x,y,z){var o=new T.Mesh(g,m);o.position.set(x||0,y||0,z||0);return o}
+  function limb(r1,r2,len,m){var g=new T.Group();g.add(mesh(new T.CylinderGeometry(r1,r2,len,14),m,0,-len/2,0));
+    g.add(mesh(new T.SphereGeometry(r1,14,10),m,0,0,0));g.add(mesh(new T.SphereGeometry(r2,14,10),m,0,-len,0));return g}
+  var root=new T.Group();S.add(root);
+  var body=new T.Group();root.add(body);
+  // shadow
+  var sh=new T.Mesh(new T.CircleGeometry(2.6,24),new T.MeshBasicMaterial({color:0,transparent:true,opacity:.38,depthWrite:false}));
+  sh.rotation.x=-Math.PI/2;sh.scale.set(1,.55,1);sh.position.y=.02;S.add(sh);
+  // legs
+  var legs=[];[-1,1].forEach(function(s){var th=new T.Group();th.position.set(s*.85,9.2,0);body.add(th);
+    th.add(limb(.78,.64,3.9,s<0?mP:mP));var kn=new T.Group();kn.position.y=-4.1;th.add(kn);kn.add(limb(.64,.56,3.8,mP));
+    var ft=new T.Group();ft.position.y=-4.15;kn.add(ft);ft.add(mesh(new T.BoxGeometry(1.25,.75,2.6),mSh,0,-.25,.5));ft.add(mesh(new T.BoxGeometry(1.3,.22,2.7),mSo,0,-.66,.5));
+    legs.push({th:th,kn:kn,s:s})});
+  // pelvis
+  body.add(mesh(new T.BoxGeometry(3.1,1.5,1.9),mP,0,9.4,0));
+  var belt=mesh(new T.BoxGeometry(3.2,.35,2),mC,0,10.05,0);body.add(belt);
+  // torso
+  var tor=new T.Group();tor.position.y=10;body.add(tor);
+  var jk=mesh(new T.CylinderGeometry(2.05,1.75,5.2,18),mJ,0,2.6,0);jk.scale.z=.62;tor.add(jk);
+  var hem=mesh(new T.CylinderGeometry(1.8,1.8,.5,18),mJ2,0,.25,0);hem.scale.z=.64;tor.add(hem);
+  tor.add(mesh(new T.BoxGeometry(1.1,4.6,.2),mT,0,2.8,1.13));
+  var col=mesh(new T.TorusGeometry(1.05,.28,8,18),mJ2,0,5.15,0);col.rotation.x=Math.PI/2;col.scale.y=.75;tor.add(col);
+  [-1,1].forEach(function(s){var st=mesh(new T.BoxGeometry(.18,3.4,.12),mA,s*.75,3.9,1.18);st.rotation.z=s*.32;tor.add(st)});
+  tor.add(mesh(new T.BoxGeometry(1.55,1.05,.75),mC,0,2.45,1.35));
+  var lens=mesh(new T.CylinderGeometry(.38,.42,.5,16),mL,.15,2.4,1.8);lens.rotation.x=Math.PI/2;tor.add(lens);
+  tor.add(mesh(new T.CylinderGeometry(.24,.24,.06,12),mC,.15,2.4,2.06).rotateX(Math.PI/2));
+  // head
+  var hd=new T.Group();hd.position.y=5.5;tor.add(hd);
+  hd.add(mesh(new T.CylinderGeometry(.55,.6,1.1,12),mSk,0,.5,0));
+  var face=mesh(new T.SphereGeometry(1.45,22,18),mSk,0,2.1,.05);face.scale.set(.92,1.1,1);hd.add(face);
+  var hair=mesh(new T.SphereGeometry(1.55,22,14,0,Math.PI*2,0,Math.PI*.52),mH,0,2.3,-.08);hair.scale.set(.96,1.02,1.02);hair.rotation.x=-.18;hd.add(hair);
+  var fr=mesh(new T.BoxGeometry(2.2,.5,.6),mH,.15,3.2,1.05);fr.rotation.z=-.15;fr.rotation.x=.3;hd.add(fr);
+  [-1,1].forEach(function(s){hd.add(mesh(new T.SphereGeometry(.13,8,6),mH,s*.5,2.25,1.36));hd.add(mesh(new T.SphereGeometry(.3,10,8),mSk,s*1.38,2.05,0));
+    var br=mesh(new T.BoxGeometry(.5,.1,.1),mH,s*.52,2.62,1.32);br.rotation.z=s*-.1;hd.add(br)});
+  hd.add(mesh(new T.SphereGeometry(.2,8,6),mSk,0,1.9,1.5));
+  // arms
+  var arms=[];[-1,1].forEach(function(s){var sp=new T.Group();sp.position.set(s*2.05,4.7,0);tor.add(sp);sp.add(mesh(new T.SphereGeometry(.8,14,10),mJ));
+    sp.add(limb(.66,.58,3.1,mJ));var el=new T.Group();el.position.y=-3.2;sp.add(el);el.add(limb(.58,.5,2.7,mJ));
+    el.add(mesh(new T.CylinderGeometry(.56,.56,.35,12),mJ2,0,-2.6,0));el.add(mesh(new T.SphereGeometry(.55,12,10),mSk,0,-3.15,0));
+    sp.rotation.z=s*.08;arms.push({sp:sp,el:el,s:s})});
+  var W=0,H=0,ph=0,yaw=.4,last=0,pt=0;
+  function fit(){var w=wk.clientWidth,h=wk.clientHeight;if(w===W&&h===H)return;W=w;H=h;R.setPixelRatio(Math.min(2,devicePixelRatio||1));R.setSize(w,h,false);
+    C.aspect=w/h;C.updateProjectionMatrix();C.position.set(0,15,42);C.lookAt(0,8.6,0)}
+  function lerp(a,b,k){return a+(b-a)*k}
+  function frame(ts){var dt=last?Math.min(.05,(ts-last)/1000):.016;last=ts;fit();
+    var walking=wk.classList.contains('walking')&&!RM,point=wk.classList.contains('point')&&!walking,left=wk.classList.contains('flip');
+    var ty=walking?(left?-1.2:1.2):point?(left?-.9:.9):(left?-.45:.45);yaw=lerp(yaw,ty,Math.min(1,dt*8));root.rotation.y=yaw;
+    if(walking)ph+=dt*11;var a=walking?1:0;
+    legs.forEach(function(l){var s=Math.sin(ph+(l.s>0?0:Math.PI));l.th.rotation.x=lerp(l.th.rotation.x,-s*.6*a,.3);
+      l.kn.rotation.x=lerp(l.kn.rotation.x,Math.max(0,Math.cos(ph+(l.s>0?0:Math.PI)))*.9*a,.3)});
+    pt=lerp(pt,point?1:0,Math.min(1,dt*7));
+    arms.forEach(function(r){var s=Math.sin(ph+(r.s>0?Math.PI:0));var near=(left?r.s>0:r.s<0);
+      var sx=s*.55*a,ex=-.35-.25*a;if(near){sx=lerp(sx,-1.55,pt);ex=lerp(ex,-.1,pt)}
+      r.sp.rotation.x=lerp(r.sp.rotation.x,sx,.3);r.el.rotation.x=lerp(r.el.rotation.x,ex,.3)});
+    body.position.y=walking?Math.abs(Math.sin(ph))*.35:Math.sin(ts/700)*.06;tor.rotation.y=walking?Math.sin(ph)*.08:0;
+    hd.rotation.y=lerp(hd.rotation.y,point?0:-yaw*.35,.1);
+    R.render(S,C);requestAnimationFrame(frame)}
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
