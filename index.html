@@ -381,6 +381,47 @@ html.in-game,html.in-game body{overflow:hidden}
 #game.cine .g-top,#game.cine #gMap,#game.cine .g-keys,#game.cine .g-hint,#game.cine #gJoy,#game.cine #gAct{opacity:0;pointer-events:none}
 .g-top,#gMap,.g-keys,.g-hint{transition:opacity .5s}
 @media (prefers-reduced-motion:reduce){.g-fx::after{animation:none}}
+
+/* ===== map & objectives menu (original design) ===== */
+html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #sub,html.in-game #banner,html.in-game footer,html.in-game #street,html.in-game #city3d{visibility:hidden}
+#gMenu{position:absolute;inset:0;z-index:20;display:grid;grid-template-columns:minmax(300px,420px) 1fr;background:#0e1116}
+#gMenu[hidden]{display:none}
+.gm-left{display:flex;flex-direction:column;background:linear-gradient(180deg,#14171d,#0f1217);border-right:1px solid rgba(255,255,255,.08);min-height:0}
+.gm-top{padding:20px 20px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.gm-top b{display:block;font:700 italic 26px/1 var(--f);letter-spacing:-.01em}
+.gm-top small{display:block;margin-top:6px;font:600 11px var(--f);letter-spacing:.12em;text-transform:uppercase;color:var(--sub)}
+.gm-body{flex:1;display:grid;grid-template-columns:64px 1fr;min-height:0}
+.gm-rail{display:flex;flex-direction:column;gap:4px;padding:10px 8px;border-right:1px solid rgba(255,255,255,.06)}
+.gm-rail button{display:grid;place-items:center;gap:3px;padding:9px 0;border:none;border-radius:8px;background:transparent;color:var(--sub);cursor:pointer;font:600 9.5px var(--f);letter-spacing:.08em;text-transform:uppercase}
+.gm-rail button svg{width:22px;height:22px}
+.gm-rail button.on,.gm-rail button:hover{background:rgba(255,200,61,.14);color:var(--pink)}
+.gm-list{overflow:auto;padding:8px 12px 16px}
+.gm-list h4{margin:14px 6px 6px;font:700 12px var(--f);letter-spacing:.16em;text-transform:uppercase;color:var(--sub)}
+.gm-it{display:flex;align-items:center;gap:12px;width:100%;padding:11px 10px;border:none;border-bottom:1px solid rgba(255,255,255,.06);background:transparent;color:var(--txt);text-align:left;cursor:pointer;font:600 15.5px var(--f);border-radius:6px}
+.gm-it:hover,.gm-it.on{background:rgba(255,255,255,.07)}
+.gm-it.on{box-shadow:inset 3px 0 0 var(--pink)}
+.gm-it .n{flex:none;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:#14161A;border:2px solid var(--pink);color:var(--pink);font:700 12px var(--f);font-style:normal}
+.gm-it span{flex:1;min-width:0}
+.gm-it em{font-style:normal;color:#7CD992;font-weight:700}.gm-it em.wp{color:#4FB3FF}.gm-it em.pr{color:var(--pink);font-size:13px}
+.gm-foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid rgba(255,255,255,.08);font:600 11.5px var(--f);color:var(--sub)}
+.gm-foot span{display:flex;gap:4px;align-items:center}
+.gm-foot button{margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:6px;color:var(--txt);padding:5px 10px;font:600 12px var(--f);cursor:pointer}
+#gMenuMap{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.gm-card{position:absolute;right:24px;top:24px;width:min(380px,calc(100% - 48px));max-height:calc(100% - 48px);overflow:auto;padding:16px 18px;border-radius:10px;background:rgba(18,21,27,.96);border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 50px rgba(0,0,0,.55),inset 0 3px 0 var(--pink)}
+.gm-card[hidden]{display:none}
+.gc-h{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.gc-h .n{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:8px;background:var(--pink);color:#14161A;font:700 20px var(--f);font-style:normal}
+.gc-h small{display:block;font:600 11px var(--f);letter-spacing:.12em;text-transform:uppercase;color:var(--sub)}
+.gc-h b{display:block;font:700 22px/1.1 var(--f);text-transform:uppercase;letter-spacing:-.01em}
+.gm-card p{margin:0 0 10px;color:#d6dae1;font-size:14.5px;line-height:1.5}
+.gm-card .gc-obj{color:var(--pink);font-weight:600}
+.gm-card ul{margin:0 0 12px;padding-left:18px;color:#d6dae1;font-size:14px}
+.gc-row{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid rgba(255,255,255,.08);font-size:14px}
+.gc-row span{width:84px;color:var(--sub)}.gc-row b{flex:1;word-break:break-all}
+.gc-row button,.gc-row a{background:rgba(255,255,255,.1);border:none;border-radius:999px;padding:5px 11px;color:var(--txt);font:600 12px var(--f);cursor:pointer;text-decoration:none}
+.gc-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+#game.menu .g-top,#game.menu #gMap,#game.menu .g-keys,#game.menu .g-hint,#game.menu #gJoy,#game.menu #gAct{visibility:hidden}
+@media (max-width:760px){#gMenu{grid-template-columns:1fr;grid-template-rows:45% 55%}.gm-left{order:2;border-right:none;border-top:1px solid rgba(255,255,255,.08)}#gMenuMap{order:1}.gm-top{display:none}.gm-card{top:auto;bottom:calc(55% + 10px);right:10px;left:10px;width:auto;max-height:40%}.gm-body{grid-template-columns:56px 1fr}}
 </style>
 </head>
 <body>
@@ -483,17 +524,27 @@ html.in-game,html.in-game body{overflow:hidden}
 
 <div id="game" hidden>
   <canvas id="gCanvas" tabindex="-1" aria-label="3D city walkthrough"></canvas>
-  <div class="g-top"><div id="gObj" class="g-obj"></div><div class="g-r"><span class="g-cnt"><small>STOPS</small> <b id="gCnt">0 / 6</b></span><button id="gExit" class="nk" type="button"><kbd>Esc</kbd> Page view</button></div></div>
+  <div class="g-top"><div id="gObj" class="g-obj"></div><div class="g-r"><span class="g-cnt"><small>STOPS</small> <b id="gCnt">0 / 6</b></span><button id="gMenuBtn" class="nk" type="button"><kbd>M</kbd> Map &amp; work</button></div></div>
   <canvas id="gMap" width="240" height="160" aria-hidden="true"></canvas>
   <div id="gHint" class="g-hint" hidden></div>
   <div class="g-fx" aria-hidden="true"></div><div class="g-bar t"></div><div class="g-bar b"></div><div id="gCine" class="g-cine" aria-live="polite"><b></b><span></span></div>
-  <div class="g-keys" aria-hidden="true"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk</span><span><kbd>Shift</kbd> run</span><span>Drag to look</span><span><kbd>E</kbd> open stop</span></div>
+  <div class="g-keys" aria-hidden="true"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk</span><span><kbd>Shift</kbd> run</span><span>Drag to look</span><span><kbd>E</kbd> open stop</span><span><kbd>M</kbd> map</span></div>
   <div id="gJoy" aria-hidden="true"><i></i></div><button id="gAct" type="button">E</button>
+    <div id="gMenu" hidden>
+    <div class="gm-left">
+      <div class="gm-top"><b>NEW YORK CITY</b><small>Nyein Chan (Alex) · Content · Web · Systems</small></div>
+      <div class="gm-body"><nav class="gm-rail" aria-label="Menu"><button data-tab="work" data-label="Work"></button><button data-tab="map" data-label="Map"></button><button data-tab="services" data-label="Services"></button><button data-tab="contact" data-label="Contact"></button></nav>
+      <div id="gMenuList" class="gm-list"></div></div>
+      <div class="gm-foot"><span><kbd>↑</kbd><kbd>↓</kbd> select</span><span><kbd>W</kbd> waypoint</span><span><kbd>↵</kbd> open</span><button id="gMenuClose" type="button"><kbd>Esc</kbd> back</button></div>
+    </div>
+    <canvas id="gMenuMap" aria-label="City map"></canvas>
+    <div id="gMenuCard" class="gm-card" hidden></div>
+  </div>
   <div id="gStart" class="g-start"><div class="g-card">
-    <p class="loc-cap">New York City</p><h2>Walk Alex's New York</h2>
-    <p>Six stops, one for each part of the work. Follow the amber line and press <kbd>E</kbd> at a stop to open it.</p>
+    <p class="loc-cap">Portfolio · New York City</p><h2>Walk Alex's New York</h2>
+    <p>Six stops, one for each part of the work. Follow the amber line, press <kbd>E</kbd> at a stop to open it, and <kbd>M</kbd> for the map, packages and contact.</p>
     <div class="g-ctl"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Walk</span><span><kbd>Shift</kbd> Run</span><span>Drag · Look</span><span><kbd>E</kbd> Open</span></div>
-    <div class="cta"><button class="btn" type="button"><kbd>↵</kbd> Start</button><a class="btn alt" id="gSkip" href="#top">View as page</a></div>
+    <div class="cta"><button class="btn" type="button"><kbd>↵</kbd> Start</button></div>
   </div></div>
 </div>
 <main id="top">
@@ -852,11 +903,11 @@ html.in-game,html.in-game body{overflow:hidden}
   function $(s){return document.querySelector(s)}
   function openGame(){gm.hidden=false;document.documentElement.classList.add('in-game');if(!started){started=true;if(!window.THREE){fail();return}build()}running=true;$('#gStart').hidden=false;$('#gStart button').focus()}
   function closeGame(){running=false;gm.hidden=true;document.documentElement.classList.remove('in-game')}
-  function fail(){$('#gStart p').textContent='3D could not load on this device. Use the page view instead.'}
+  function fail(){$('#gStart p').textContent='3D could not load on this device, so the text version is shown instead.';setTimeout(closeGame,2500)}
   document.querySelectorAll('[data-game]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();openGame()})});
-  $('#gExit').addEventListener('click',closeGame);$('#gSkip').addEventListener('click',closeGame);
+  
   addEventListener('keydown',function(e){if(e.key==='g'||e.key==='G'){if(!running&&!document.querySelector('dialog[open]')&&!/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||''))openGame()}});
-  try{if(matchMedia('(pointer:fine)').matches&&innerWidth>900&&sessionStorage.getItem('gSeen')!=='1'){sessionStorage.setItem('gSeen','1');setTimeout(openGame,400)}}catch(e){}
+  document.documentElement.classList.add('in-game');setTimeout(openGame,50);
 
   function build(){
   var T=THREE,cv=$('#gCanvas'),R;
@@ -1016,7 +1067,7 @@ html.in-game,html.in-game body{overflow:hidden}
   addEventListener('keydown',function(e){if(!running||document.querySelector('dialog[open]')||typing())return;var k=e.key.toLowerCase();
     if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift',' '].indexOf(k)>=0){keys[k]=1;e.preventDefault()}
     if((k==='e'||k==='enter')&&near&&$('#gStart').hidden){act(near);e.preventDefault()}
-    if(k==='escape'){closeGame()}});
+    });
   addEventListener('keyup',function(e){keys[e.key.toLowerCase()]=0});
   addEventListener('keydown',function(e){if(cine&&cine.type==='intro'&&running)endCine()},true);cv.addEventListener('pointerdown',function(){if(cine&&cine.type==='intro')endCine()});
   addEventListener('blur',function(){keys={}});
@@ -1034,7 +1085,7 @@ html.in-game,html.in-game body{overflow:hidden}
     jv={x:dx/m,y:dy/m};knob.style.transform='translate('+dx+'px,'+dy+'px)'}
   $('#gAct').addEventListener('click',function(){if(near)act(near)});
   $('#gStart button').addEventListener('click',function(){$('#gStart').hidden=true;cv.focus();if(!RMo)startCine('intro',7.5,'New York City','Content · Web · Systems')});
-  function act(m){var n=m.s[0];keys={};if(n===7){closeGame();var c=document.getElementById('contact');if(c)c.scrollIntoView({behavior:'smooth'});return}
+  function act(m){var n=m.s[0];keys={};if(n===7){window.__gMenu&&window.__gMenu.open('contact');return}
     var b=document.querySelector('[data-open="'+n+'"]');if(b)b.click()}
   // ---- collision ----
   function blocked(x,z){var r=.38;for(var k=0;k<boxes.length;k++){var b=boxes[k];if(x>b[0]-r&&x<b[2]+r&&z>b[1]-r&&z<b[3]+r)return true}return false}
@@ -1058,7 +1109,7 @@ html.in-game,html.in-game body{overflow:hidden}
   function fit(){var w=cv.clientWidth,h=cv.clientHeight;if(w===W&&h===H)return;W=w;H=h;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}
   function nextStop(){for(var k=0;k<marks.length;k++)if(!marks[k].done)return marks[k];return null}
   function loop(ts){requestAnimationFrame(loop);if(!running)return;var dt=lt?Math.min(.05,(ts-lt)/1000):.016;lt=ts;fit();
-    var paused=!!document.querySelector('dialog[open]')||!$('#gStart').hidden||!!cine;
+    var paused=!!document.querySelector('dialog[open]')||!$('#gStart').hidden||!!cine||!$('#gMenu').hidden;
     var ix_=0,iz_=0;if(!paused){if(keys.w||keys.arrowup)iz_-=1;if(keys.s||keys.arrowdown)iz_+=1;if(keys.a||keys.arrowleft)ix_-=1;if(keys.d||keys.arrowright)ix_+=1;ix_+=jv.x;iz_+=jv.y}
     var mag=Math.min(1,Math.hypot(ix_,iz_)),run=keys.shift||Math.hypot(jv.x,jv.y)>.92,sp=mag>.05?(run?9:4)*mag:0;
     vel+=(sp-vel)*Math.min(1,dt*10);
@@ -1084,11 +1135,100 @@ html.in-game,html.in-game body{overflow:hidden}
     // stops
     near=null;marks.forEach(function(m){var d=Math.hypot(m.g.position.x-pos.x,m.g.position.z-pos.z);m.ring.rotation.z+=dt*.8;m.beam.material.opacity=(m.done?.08:.22)+Math.sin(ts/400)*.03;
       if(d<4.2){near=m;if(!m.done){m.done=true;done++;m.ring.material.color.set(0x8b919b);m.beam.material.color.set(0x8b919b);if(!RMo&&!cine)startCine('orbit',2.6,m.s[0]<7?'Stop 0'+m.s[0]:'Last stop',m.s[1])}}});
-    var nx2=nextStop();ui.cnt.textContent=Math.min(done,6)+' / 6';
+    var nx2=(window.__gMenu&&window.__gMenu.target())||nextStop();ui.cnt.textContent=Math.min(done,6)+' / 6';
     if(near){ui.hint.hidden=false;ui.hint.innerHTML='<kbd>E</kbd> '+(near.s[0]===7?'Contact Alex':'Open: '+near.s[1])}else ui.hint.hidden=true;
     if(nx2){var dd=Math.round(Math.hypot(nx2.g.position.x-pos.x,nx2.g.position.z-pos.z)*1);ui.obj.innerHTML='<small>Next stop</small><b>'+(nx2.s[0]<7?'0'+nx2.s[0]+' · ':'')+nx2.s[1]+'</b><span>'+dd+' m · follow the amber line</span>'}
     else ui.obj.innerHTML='<small>Route complete</small><b>All stops reached</b><span>Press Esc for the full page</span>';
     var hy_=Math.max(0,C.position.y-4);S.fog.near=60+hy_*2.2;S.fog.far=300+hy_*5;drawMap();R.render(S,C)}
+  // ---- water around the island (rivers) ----
+  var LX0=I0*PX-RD,LX1=I1*PX+RD,LZ0=J0*PZ-RD,LZ1=J1*PZ+RD;
+  ground.geometry.dispose();ground.geometry=new T.PlaneGeometry(LX1-LX0,LZ1-LZ0);ground.position.set((LX0+LX1)/2,0,(LZ0+LZ1)/2);
+  asphalt.repeat.set((LX1-LX0)/33,(LZ1-LZ0)/33);
+  var water=new T.Mesh(new T.PlaneGeometry(3000,3000),new T.MeshStandardMaterial({color:0x2b4256,roughness:.12,metalness:.55}));water.rotation.x=-Math.PI/2;water.position.y=-.9;S.add(water);
+  var wallM=M(0x8f8a80,.9);[[LX0,(LZ0+LZ1)/2,1.2,LZ1-LZ0],[LX1,(LZ0+LZ1)/2,1.2,LZ1-LZ0],[(LX0+LX1)/2,LZ0,LX1-LX0,1.2],[(LX0+LX1)/2,LZ1,LX1-LX0,1.2]].forEach(function(w){var m=new T.Mesh(new T.BoxGeometry(w[2],2.4,w[3]),wallM);m.position.set(w[0],-.9,w[1]);m.receiveShadow=true;S.add(m)});
+  var rail=new T.InstancedMesh(new T.CylinderGeometry(.05,.05,1.1,5),M(0x2b2e31,.5,.6),Math.ceil((LZ1-LZ0)/3)*2+Math.ceil((LX1-LX0)/3)*2),rn=0;
+  for(var z=LZ0;z<LZ1;z+=3){[LX0+.4,LX1-.4].forEach(function(x){m4.makeTranslation(x,.55,z);rail.setMatrixAt(rn++,m4)})}
+  for(var x=LX0;x<LX1;x+=3){[LZ0+.4,LZ1-.4].forEach(function(zz){m4.makeTranslation(x,.55,zz);rail.setMatrixAt(rn++,m4)})}
+  rail.count=rn;S.add(rail);
+  [[LX0+.4,(LZ0+LZ1)/2,.08,LZ1-LZ0],[LX1-.4,(LZ0+LZ1)/2,.08,LZ1-LZ0],[(LX0+LX1)/2,LZ0+.4,LX1-LX0,.08],[(LX0+LX1)/2,LZ1-.4,LX1-LX0,.08]].forEach(function(w){var m=new T.Mesh(new T.BoxGeometry(w[2],.08,w[3]),M(0x2b2e31,.5,.6));m.position.set(w[0],1.1,w[1]);S.add(m)});
+  boxes.push([-1e4,-1e4,LX0+.8,1e4],[LX1-.8,-1e4,1e4,1e4],[-1e4,-1e4,1e4,LZ0+.8],[-1e4,LZ1-.8,1e4,1e4]);
+
+  // ---- map & objectives menu ----
+  var MN=$('#gMenu'),mc=$('#gMenuMap'),mx2=mc.getContext('2d'),mList=$('#gMenuList'),mCard=$('#gMenuCard'),tab='work',sel=null,waypoint=null;
+  var view={x:pos.x,z:pos.z-120,s:1.3},PKD=[{"n": "Essentials", "p": "$1,200", "u": "/ month", "f": "Keep your Instagram and Facebook active and on-brand.", "li": ["Instagram and Facebook management", "6 reels or posts a month, edited from your footage", "Captions and scheduling", "Monthly results report"], "r": false}, {"n": "Growth", "p": "$2,100", "u": "/ month", "f": "Fresh content shot for you every month, plus paid ads.", "li": ["Everything in Essentials", "12 reels or posts a month", "One photo and video shoot a month", "Meta ads set-up and management", "Monthly strategy call"], "r": true}, {"n": "Full Digital", "p": "$4,200", "u": "/ month", "f": "Content, website and the systems behind them, run by one person.", "li": ["Everything in Growth", "Shopify website updates and product listings", "AI-generated product video", "Custom dashboards and internal tools", "Weekly check-in"], "r": false}, {"n": "Account audit and 90-day plan", "p": "$500", "u": "one-off", "f": "A full review of your Instagram, ads and website, with a 90-day plan and the numbers to track.", "li": ["Account and content review", "Ads and website review", "90-day plan with targets"], "r": false}, {"n": "Shopify website build", "p": "From $1,500", "u": "one-off", "f": "A Shopify store designed and built for how you sell.", "li": ["Design and build", "Product listings and photography", "Launch support"], "r": false}, {"n": "Custom dashboard or internal system", "p": "Quote", "u": "one-off", "f": "Software for the way your team works: orders, sales, appointments.", "li": ["Scoping call", "Design and build", "Training for your team"], "r": false}];
+  var LOCS=[].slice.call(document.querySelectorAll('.loc')).map(function(el){return{t:el.dataset.title,p:(el.querySelector('.pn-txt p')||{}).textContent||'',place:(el.querySelector('.pn-head')||{}).textContent||''}});
+  var ICON={work:'<svg viewBox="0 0 24 24"><path d="M4 7h16v12H4zM9 7V5h6v2" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    map:'<svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    services:'<svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    contact:'<svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>'};
+  [].slice.call(document.querySelectorAll('#gMenu .gm-rail button')).forEach(function(b){b.innerHTML=ICON[b.dataset.tab]+'<span>'+b.dataset.label+'</span>';b.addEventListener('click',function(){setTab(b.dataset.tab)})});
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function setTab(t){tab=t;[].slice.call(document.querySelectorAll('#gMenu .gm-rail button')).forEach(function(b){b.classList.toggle('on',b.dataset.tab===t)});renderList();
+    if(t==='contact')select({kind:'contact'});else if(t==='services')select({kind:'pk',i:1});else if(t==='work')select({kind:'stop',m:nextStop()||marks[0]});else{sel=null;mCard.hidden=true}}
+  function renderList(){var h='';
+    if(tab==='work'||tab==='map'){h+='<h4>Main stops</h4>';marks.slice(0,6).forEach(function(m,k){h+='<button class="gm-it'+(sel&&sel.m===m?' on':'')+'" data-k="'+k+'"><i class="n">'+(k+1)+'</i><span>'+esc(m.s[1])+'</span>'+(m.done?'<em>✓</em>':(waypoint===m?'<em class="wp">◆</em>':''))+'</button>'});
+      h+='<h4>Also on the map</h4><button class="gm-it" data-go="services"><i class="n">$</i><span>Packages &amp; pricing</span></button><button class="gm-it" data-go="contact"><i class="n">✉</i><span>Contact Alex</span></button>'}
+    if(tab==='services'){h+='<h4>Packages</h4>';PKD.forEach(function(p,k){h+='<button class="gm-it'+(sel&&sel.kind==='pk'&&sel.i===k?' on':'')+'" data-pk="'+k+'"><i class="n">$</i><span>'+esc(p.n)+'</span><em class="pr">'+esc(p.p)+'</em></button>'})}
+    if(tab==='contact'){h+='<h4>Contact</h4><button class="gm-it on"><i class="n">✉</i><span>Message Alex</span></button>'}
+    mList.innerHTML=h;
+    [].slice.call(mList.querySelectorAll('[data-k]')).forEach(function(b){b.addEventListener('click',function(){var m=marks[+b.dataset.k];select({kind:'stop',m:m});view.x=m.g.position.x;view.z=m.g.position.z})});
+    [].slice.call(mList.querySelectorAll('[data-pk]')).forEach(function(b){b.addEventListener('click',function(){select({kind:'pk',i:+b.dataset.pk})})});
+    [].slice.call(mList.querySelectorAll('[data-go]')).forEach(function(b){b.addEventListener('click',function(){setTab(b.dataset.go)})})}
+  function select(o){sel=o;var h='';
+    if(o.kind==='stop'&&o.m){var k=marks.indexOf(o.m),L=LOCS[k]||{};
+      h='<div class="gc-h"><i class="n">'+(k+1)+'</i><div><small>Stop 0'+(k+1)+' · New York</small><b>'+esc(o.m.s[1])+'</b></div></div>'+
+        '<p class="gc-obj">'+(o.m.done?'✓ Visited':'◆ '+Math.round(Math.hypot(o.m.g.position.x-pos.x,o.m.g.position.z-pos.z))+' m away')+'</p><p>'+esc(L.p)+'</p>'+
+        '<div class="gc-act"><button class="btn" data-a="wp"><kbd>W</kbd> '+(waypoint===o.m?'Waypoint set':'Set waypoint')+'</button><button class="btn alt" data-a="open"><kbd>↵</kbd> Open file</button></div>'}
+    else if(o.kind==='pk'){var p=PKD[o.i];h='<div class="gc-h"><i class="n">$</i><div><small>'+(p.r?'Recommended':'Package')+'</small><b>'+esc(p.n)+'</b></div></div><p class="gc-obj"><b>'+esc(p.p)+'</b> '+esc(p.u)+'</p><p>'+esc(p.f)+'</p><ul>'+p.li.map(function(x){return'<li>'+esc(x)+'</li>'}).join('')+'</ul>'+
+        '<div class="gc-act"><a class="btn" href="mailto:nyein2k17@gmail.com?subject='+encodeURIComponent('Request: '+p.n)+'"><kbd>↵</kbd> Request</a></div>'}
+    else if(o.kind==='contact'){h='<div class="gc-h"><i class="n">✉</i><div><small>New York City</small><b>Work with Alex</b></div></div><p>Tell me about your brand, what you sell and where you post today. I reply with a 90-day plan and the numbers we\'ll track.</p>'+
+        '<div class="gc-row"><span>Email</span><b>nyein2k17@gmail.com</b><button data-a="copy">Copy</button></div><div class="gc-row"><span>Instagram</span><b>@nc.alexx</b><a href="https://www.instagram.com/nc.alexx/" target="_blank" rel="noopener">Open ↗</a></div>'+
+        '<div class="gc-act"><a class="btn" href="mailto:nyein2k17@gmail.com?subject=Project%20enquiry"><kbd>↵</kbd> Send a message</a></div>'}
+    mCard.innerHTML=h;mCard.hidden=!h;
+    var wp=mCard.querySelector('[data-a="wp"]');if(wp)wp.addEventListener('click',function(){waypoint=o.m;select(o);renderList()});
+    var op=mCard.querySelector('[data-a="open"]');if(op)op.addEventListener('click',function(){var b=document.querySelector('[data-open="'+(marks.indexOf(o.m)+1)+'"]');if(b)b.click()});
+    var cp=mCard.querySelector('[data-a="copy"]');if(cp)cp.addEventListener('click',function(){try{navigator.clipboard.writeText('nyein2k17@gmail.com');cp.textContent='Copied'}catch(e){}});
+    renderListMarks()}
+  function renderListMarks(){[].slice.call(mList.querySelectorAll('[data-k]')).forEach(function(b){b.classList.toggle('on',!!(sel&&sel.m===marks[+b.dataset.k]))})}
+  function openMenu(t){MN.hidden=false;keys={};view.x=pos.x;view.z=pos.z-60;setTab(t||'work');gm.classList.add('menu')}
+  function closeMenu(){MN.hidden=true;gm.classList.remove('menu');cv.focus()}
+  $('#gMenuBtn').addEventListener('click',function(){openMenu()});$('#gMenuClose').addEventListener('click',closeMenu);
+  addEventListener('keydown',function(e){if(!running||typing()||document.querySelector('dialog[open]'))return;var k=e.key.toLowerCase();
+    if(!MN.hidden){if(k==='escape'||k==='m'||k==='tab'){e.preventDefault();closeMenu()}
+      else if(k==='w'&&sel&&sel.kind==='stop'){waypoint=sel.m;select(sel);renderList()}
+      else if(k==='enter'&&sel){var a=mCard.querySelector('[data-a="open"]')||mCard.querySelector('a.btn');if(a)a.click()}
+      else if(k==='arrowdown'||k==='arrowup'){e.preventDefault();var its=[].slice.call(mList.querySelectorAll('.gm-it')),i=its.findIndex(function(b){return b.classList.contains('on')});i=Math.max(0,Math.min(its.length-1,i+(k==='arrowdown'?1:-1)));if(its[i])its[i].click()}
+      e.stopImmediatePropagation();return}
+    if((k==='m'||k==='tab'||k==='escape')&&$('#gStart').hidden&&!cine){e.preventDefault();e.stopImmediatePropagation();openMenu()}},true);
+  // map drawing (pan with drag, zoom with wheel, click markers)
+  var md=null;mc.addEventListener('pointerdown',function(e){md={x:e.clientX,y:e.clientY,vx:view.x,vz:view.z,moved:0};mc.setPointerCapture(e.pointerId)});
+  mc.addEventListener('pointermove',function(e){if(!md)return;var dx=e.clientX-md.x,dy=e.clientY-md.y;md.moved=Math.max(md.moved,Math.abs(dx)+Math.abs(dy));view.x=md.vx-dx/view.s;view.z=md.vz-dy/view.s});
+  mc.addEventListener('pointerup',function(e){if(md&&md.moved<5){var r=mc.getBoundingClientRect(),wx=view.x+(e.clientX-r.left-r.width/2)/view.s,wz=view.z+(e.clientY-r.top-r.height/2)/view.s,best=null,bd=1e9;
+      marks.forEach(function(m){var d=Math.hypot(m.g.position.x-wx,m.g.position.z-wz);if(d<bd){bd=d;best=m}});if(best&&bd*view.s<26){if(best.s[0]===7)setTab('contact');else{if(tab!=='work')setTab('work');select({kind:'stop',m:best})}}}md=null});
+  mc.addEventListener('wheel',function(e){e.preventDefault();view.s=Math.max(.4,Math.min(4,view.s*Math.pow(1.0015,-e.deltaY)))},{passive:false});
+  function drawMenuMap(ts){var r=mc.getBoundingClientRect(),D=Math.min(2,devicePixelRatio||1),W=r.width,H=r.height;if(mc.width!==Math.round(W*D)){mc.width=Math.round(W*D);mc.height=Math.round(H*D)}
+    var x=mx2;x.setTransform(D,0,0,D,0,0);x.fillStyle='#1d2f40';x.fillRect(0,0,W,H);
+    x.save();x.translate(W/2,H/2);x.scale(view.s,view.s);x.translate(-view.x,-view.z);
+    x.fillStyle='#2a4054';for(var i=0;i<60;i++){x.fillRect(LX0-400+((i*97)%1200),LZ0-300+((i*61)%1100),40,2)}
+    x.fillStyle='#e7e5df';x.fillRect(LX0,LZ0,LX1-LX0,LZ1-LZ0);
+    x.fillStyle='#f7f6f2';for(var i=I0;i<=I1;i++)x.fillRect(i*PX-RD/2,LZ0,RD,LZ1-LZ0);for(var j=J0;j<=J1;j++)x.fillRect(LX0,j*PZ-RD/2,LX1-LX0,RD);
+    x.fillStyle='#9cc59a';for(var i=I0;i<I1;i++)for(var j=J0;j<J1;j++){if((i===2&&(j===-6||j===-5))||(i===-1&&j===-3))x.fillRect(i*PX+RD/2,j*PZ+RD/2,BX,BZ)}
+    x.fillStyle='#cfd2d8';bl.forEach(function(b){x.fillRect(b[0],b[1],b[2],b[3])});
+    x.strokeStyle='rgba(255,200,61,.95)';x.lineWidth=4/view.s+1.2;x.lineJoin='round';x.beginPath();pts.forEach(function(p,k){k?x.lineTo(p.x,p.z):x.moveTo(p.x,p.z)});x.stroke();
+    if(waypoint){x.setLineDash([6/view.s,6/view.s]);x.strokeStyle='#4FB3FF';x.lineWidth=3/view.s+.6;x.beginPath();x.moveTo(pos.x,pos.z);x.lineTo(waypoint.g.position.x,waypoint.g.position.z);x.stroke();x.setLineDash([])}
+    x.restore();
+    x.font='600 '+Math.round(13)+'px Space Grotesk, sans-serif';x.textAlign='center';x.fillStyle='rgba(20,30,45,.55)';
+    [['MIDTOWN',2,-12],['THEATER DISTRICT',-2,-6],['GARMENT DISTRICT',0,0],['HUDSON RIVER',I0-1.6,-10,1],['EAST RIVER',I1+1.6,-10,1]].forEach(function(l){var sx=W/2+(l[1]*PX-view.x)*view.s,sy=H/2+(l[2]*PZ-view.z)*view.s;x.save();x.translate(sx,sy);if(l[3]){x.rotate(-Math.PI/2);x.fillStyle='rgba(200,220,240,.55)'}x.fillText(l[0],0,0);x.restore()});
+    marks.forEach(function(m,k){var sx=W/2+(m.g.position.x-view.x)*view.s,sy=H/2+(m.g.position.z-view.z)*view.s,on=sel&&sel.m===m,rr=on?15:12;
+      x.fillStyle=m.done?'#6b7280':'#14161A';x.strokeStyle=on?'#FFC83D':'#fff';x.lineWidth=on?3:2;x.beginPath();x.arc(sx,sy-rr,rr,0,6.283);x.fill();x.stroke();
+      x.beginPath();x.moveTo(sx-5,sy-rr+rr*.75);x.lineTo(sx,sy);x.lineTo(sx+5,sy-rr+rr*.75);x.fill();
+      x.fillStyle=m.done?'#e5e7eb':'#FFC83D';x.font='700 12px Space Grotesk, sans-serif';x.textBaseline='middle';x.fillText(m.s[0]<7?m.s[0]:'✉',sx,sy-rr);x.textBaseline='alphabetic';
+      if(waypoint===m){x.strokeStyle='#4FB3FF';x.lineWidth=2;x.beginPath();x.arc(sx,sy-rr,rr+5+Math.sin(ts/200)*2,0,6.283);x.stroke()}});
+    var px=W/2+(pos.x-view.x)*view.s,pz=H/2+(pos.z-view.z)*view.s;x.save();x.translate(px,pz);x.rotate(-face+Math.PI);
+    x.fillStyle='rgba(79,179,255,.25)';x.beginPath();x.arc(0,0,16,0,6.283);x.fill();x.fillStyle='#fff';x.strokeStyle='#14161A';x.lineWidth=2;x.beginPath();x.moveTo(0,-9);x.lineTo(7,7);x.lineTo(0,3);x.lineTo(-7,7);x.closePath();x.fill();x.stroke();x.restore();
+    x.fillStyle='rgba(255,255,255,.8)';x.font='600 11px Space Grotesk, sans-serif';x.textAlign='left';x.fillText('N ↑',14,22)}
+  function menuLoop(ts){requestAnimationFrame(menuLoop);if(!MN.hidden&&running)drawMenuMap(ts)}requestAnimationFrame(menuLoop);
+  window.__gMenu={open:openMenu,target:function(){return waypoint&&!waypoint.done?waypoint:null},clearWp:function(){waypoint=null}};
   requestAnimationFrame(loop);
   }
 
