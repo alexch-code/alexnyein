@@ -478,7 +478,7 @@ html.in-game,html.in-game body{overflow:hidden}
   <canvas id="radar" width="336" height="336"></canvas>
   <div class="bars"><span><em>CONTENT · PHOTO</em><em>WEB · SYSTEMS</em></span><div style="--w:100;--c:#E9ECF1"><i></i></div><div style="--w:55;--c:#7C8494"><i></i></div></div>
 </div>
-<p id="sub" class="t-out" aria-live="polite"><b>Alex:</b> Welcome to West 47th Street. Scroll to follow the route.</p>
+<p id="sub" class="t-out" aria-live="polite"><b>Alex:</b> Welcome to New York. Scroll to follow the route.</p>
 <div id="banner" class="t-out" aria-hidden="true"><div class="b1"></div><div class="b2"></div></div>
 
 <div id="game" hidden>
@@ -490,15 +490,15 @@ html.in-game,html.in-game body{overflow:hidden}
   <div class="g-keys" aria-hidden="true"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk</span><span><kbd>Shift</kbd> run</span><span>Drag to look</span><span><kbd>E</kbd> open stop</span></div>
   <div id="gJoy" aria-hidden="true"><i></i></div><button id="gAct" type="button">E</button>
   <div id="gStart" class="g-start"><div class="g-card">
-    <p class="loc-cap">West 47th Street · New York</p><h2>Walk Alex's city</h2>
+    <p class="loc-cap">New York City</p><h2>Walk Alex's New York</h2>
     <p>Six stops, one for each part of the work. Follow the amber line and press <kbd>E</kbd> at a stop to open it.</p>
     <div class="g-ctl"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Walk</span><span><kbd>Shift</kbd> Run</span><span>Drag · Look</span><span><kbd>E</kbd> Open</span></div>
     <div class="cta"><button class="btn" type="button"><kbd>↵</kbd> Start</button><a class="btn alt" id="gSkip" href="#top">View as page</a></div>
   </div></div>
 </div>
 <main id="top">
-<section class="intro" data-say="Welcome to West 47th Street. Scroll to follow the route.">
-  <p class="loc-cap t-out">West 47th Street · New York · Since Nov 2025</p>
+<section class="intro" data-say="Welcome to New York. Scroll to follow the route.">
+  <p class="loc-cap t-out">New York City · Content · Web · Systems</p>
   <h1>Nyein Chan<br>(Alex)</h1>
   <p class="lede t-out">Content, photo &amp; video, Shopify websites and custom systems, handled by one person. Two days a week, I run everything online for Diamonds Flash NYC.</p>
   <div class="chips">
@@ -1029,7 +1029,7 @@ html.in-game,html.in-game body{overflow:hidden}
   function jmove(e){var r=joy.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),m=r.width/2,l=Math.hypot(dx,dy);if(l>m){dx*=m/l;dy*=m/l}
     jv={x:dx/m,y:dy/m};knob.style.transform='translate('+dx+'px,'+dy+'px)'}
   $('#gAct').addEventListener('click',function(){if(near)act(near)});
-  $('#gStart button').addEventListener('click',function(){$('#gStart').hidden=true;cv.focus();if(!RMo)startCine('intro',7.5,'West 47th Street','Midtown, New York')});
+  $('#gStart button').addEventListener('click',function(){$('#gStart').hidden=true;cv.focus();if(!RMo)startCine('intro',7.5,'New York City','Content · Web · Systems')});
   function act(m){var n=m.s[0];keys={};if(n===7){closeGame();var c=document.getElementById('contact');if(c)c.scrollIntoView({behavior:'smooth'});return}
     var b=document.querySelector('[data-open="'+n+'"]');if(b)b.click()}
   // ---- collision ----
