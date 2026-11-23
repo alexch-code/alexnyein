@@ -825,6 +825,14 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/BokehShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/BokehPass.js"></script>
 <script>
 (function(){
   var wk=document.getElementById('walker');if(!wk||!window.THREE)return;
@@ -918,19 +926,43 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
   try{R=new T.WebGLRenderer({canvas:cv,antialias:true})}catch(e){fail();return}
   R.setPixelRatio(Math.min(1.5,devicePixelRatio||1));R.outputEncoding=T.sRGBEncoding;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.12;
   R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;
-  var HAZE=0xd8c29b;var S=new T.Scene();S.fog=new T.Fog(HAZE,60,300);
+  var PP=null;
+  function setupPost(){if(!T.EffectComposer||!T.UnrealBloomPass||!T.ShaderPass)return;
+    try{var mob=matchMedia('(pointer:coarse)').matches,w=Math.max(1,cv.clientWidth),h=Math.max(1,cv.clientHeight),pr=R.getPixelRatio();
+      var rt=(R.capabilities.isWebGL2&&T.WebGLMultisampleRenderTarget)?new T.WebGLMultisampleRenderTarget(w*pr,h*pr,{type:T.HalfFloatType}):new T.WebGLRenderTarget(w*pr,h*pr,{type:T.HalfFloatType});
+      var cp=new T.EffectComposer(R,rt);cp.addPass(new T.RenderPass(S,C));
+      var bloom=mob?null:new T.UnrealBloomPass(new T.Vector2(w,h),.32,.45,2.2);if(bloom)cp.addPass(bloom);
+      var bokeh=(!mob&&T.BokehPass)?new T.BokehPass(S,C,{focus:4,aperture:.0006,maxblur:.006,width:w,height:h}):null;if(bokeh){bokeh.enabled=false;cp.addPass(bokeh)}
+      var grade=new T.ShaderPass({uniforms:{tDiffuse:{value:null},time:{value:0},res:{value:new T.Vector2(w,h)},expo:{value:.82},
+        lift:{value:new T.Vector3(-.008,.002,.022)},gam:{value:new T.Vector3(1.0,.985,.95)},gain:{value:new T.Vector3(1.04,1.0,.9)},sat:{value:1.06},vig:{value:.5}},
+        vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+        fragmentShader:['uniform sampler2D tDiffuse;uniform float time,expo,sat,vig;uniform vec2 res;uniform vec3 lift,gam,gain;varying vec2 vUv;',
+          'vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}',
+          'void main(){vec2 d=vUv-.5;float r=dot(d,d);vec3 c;',
+          'c.r=texture2D(tDiffuse,vUv+d*r*.012).r;c.g=texture2D(tDiffuse,vUv).g;c.b=texture2D(tDiffuse,vUv-d*r*.012).b;',
+          'c=aces(c*expo);c=pow(c,vec3(1./2.2));',
+          'c=gain*(c+lift*(1.-c));c=pow(max(c,0.),1./gam);',
+          'c=mix(c,c*c*(3.-2.*c),.22);',
+          'float l=dot(c,vec3(.2126,.7152,.0722));c=mix(vec3(l),c,sat);c+=vec3(.03,.015,0.)*smoothstep(.7,1.,l);',
+          'c*=1.-r*vig*1.3;',
+          'float g=fract(sin(dot(vUv*res+time*61.,vec2(12.9898,78.233)))*43758.5453);c+=(g-.5)*.03;',
+          'gl_FragColor=vec4(clamp(c,0.,1.),1.);}'].join('\n')});
+      cp.addPass(grade);
+      R.toneMapping=T.NoToneMapping;R.outputEncoding=T.LinearEncoding;cv.style.filter='none';
+      PP={cp:cp,bloom:bloom,bokeh:bokeh,grade:grade}}catch(e){PP=null}}
+  var HAZE=0xe6b67e;var S=new T.Scene();S.fog=new T.Fog(HAZE,60,300);
   var C=new T.PerspectiveCamera(60,1,.1,900);
   // sky dome (gradient + sun glow)
-  var skyMat=new T.ShaderMaterial({side:T.BackSide,depthWrite:false,fog:false,uniforms:{sun:{value:new T.Vector3(-.6,.35,.7).normalize()}},
+  var skyMat=new T.ShaderMaterial({side:T.BackSide,depthWrite:false,fog:false,uniforms:{sun:{value:new T.Vector3(-150,48,95).normalize()}},
     vertexShader:'varying vec3 vD;void main(){vD=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader:'uniform vec3 sun;varying vec3 vD;void main(){float h=max(vD.y,0.);vec3 top=vec3(.40,.58,.78),hor=vec3(.93,.80,.58);vec3 c=mix(hor,top,pow(h,.45));float s=max(dot(vD,sun),0.);c+=vec3(1.,.9,.6)*pow(s,300.)*1.6+vec3(1.,.7,.35)*pow(s,6.)*.35;gl_FragColor=vec4(c,1.);}'});
+    fragmentShader:'uniform vec3 sun;varying vec3 vD;void main(){float h=max(vD.y,0.);vec3 top=vec3(.34,.48,.72),hor=vec3(1.0,.68,.40);vec3 c=mix(hor,top,pow(h,.5));float s=max(dot(vD,sun),0.);c+=vec3(1.,.85,.55)*pow(s,250.)*2.2+vec3(1.,.55,.25)*pow(s,5.)*.5;gl_FragColor=vec4(c,1.);}'});
   var sky=new T.Mesh(new T.SphereGeometry(800,32,16),skyMat);S.add(sky);
-  var hemi=new T.HemisphereLight(0xffe7c4,0x7a5d3e,.95);S.add(hemi);
+  var hemi=new T.HemisphereLight(0xffd2a0,0x5c4330,.85);S.add(hemi);
   // real HDRI sky + image-based lighting (Poly Haven, CC0) when available
   if(T.RGBELoader){new T.RGBELoader().setDataType(T.UnsignedByteType).load('https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/equirectangular/pedestrian_overpass_1k.hdr',function(hdr){
     var pm=new T.PMREMGenerator(R);var env=pm.fromEquirectangular(hdr).texture;S.environment=env;hdr.mapping=T.EquirectangularReflectionMapping;hemi.intensity=.45;R.toneMappingExposure=.95;pm.dispose()})}
-  var sun=new T.DirectionalLight(0xffd59a,2.9);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);var sc=sun.shadow.camera;sc.left=-70;sc.right=70;sc.top=70;sc.bottom=-70;sc.near=1;sc.far=400;sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;
-  S.add(sun);S.add(sun.target);var SUN=new T.Vector3(-130,85,110);
+  var sun=new T.DirectionalLight(0xffae66,2.7);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);var sc=sun.shadow.camera;sc.left=-70;sc.right=70;sc.top=70;sc.bottom=-70;sc.near=1;sc.far=400;sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;
+  S.add(sun);S.add(sun.target);var SUN=new T.Vector3(-150,48,95);
   function M(c,r,m){return new T.MeshStandardMaterial({color:c,roughness:r==null?.75:r,metalness:m||0})}
   // ---- procedural textures ----
   function tex(w,h,draw,rx,ry){var c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);var t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rx||1,ry||1);t.encoding=T.sRGBEncoding;t.anisotropy=4;return t}
@@ -1113,7 +1145,7 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
   S.traverse(function(o){var ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];ms.forEach(function(m){if(m.color&&!m.__lin&&!m.isShaderMaterial){m.color.convertSRGBToLinear();m.__lin=1}})});
   // ---- loop ----
   var camDist=3.4,camPos=new T.Vector3(),look=new T.Vector3(),W=0,H=0,lt=0,ui={obj:$('#gObj'),hint:$('#gHint'),cnt:$('#gCnt')};
-  function fit(){var w=cv.clientWidth,h=cv.clientHeight;if(w===W&&h===H)return;W=w;H=h;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}
+  function fit(){var w=cv.clientWidth,h=cv.clientHeight;if(w===W&&h===H)return;W=w;H=h;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix();if(!PP&&!PP_tried){PP_tried=true;setupPost()}if(PP){PP.cp.setSize(w,h);PP.grade.uniforms.res.value.set(w,h)}}var PP_tried=false;
   function nextStop(){for(var k=0;k<marks.length;k++)if(!marks[k].done)return marks[k];return null}
   function loop(ts){requestAnimationFrame(loop);if(!running)return;var dt=lt?Math.min(.05,(ts-lt)/1000):.016;lt=ts;fit();
     var paused=!!document.querySelector('dialog[open]')||!$('#gStart').hidden||!!cine||!$('#gMenu').hidden;
@@ -1147,7 +1179,7 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
     if(nx2){var tx=nx2.g.position.x-pos.x,tz=nx2.g.position.z-pos.z,dd=Math.round(Math.hypot(tx,tz)),brg=Math.atan2(tx,tz);gpsA.visible=!cine&&dd>5;gpsA.position.x=pos.x+Math.sin(brg)*1.3;gpsA.position.z=pos.z+Math.cos(brg)*1.3;gpsA.rotation.y=brg+Math.PI;gpsA.material.opacity=.65+Math.sin(ts/220)*.25;
       var q0=new T.Vector3(pos.x,0,pos.z).project(C),q1=new T.Vector3(pos.x+Math.sin(brg)*3,0,pos.z+Math.cos(brg)*3).project(C),rel=-Math.atan2(q1.x-q0.x,q1.y-q0.y)*180/Math.PI;ui.obj.innerHTML='<i class="g-dir" style="transform:rotate('+(-rel).toFixed(1)+'deg)"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\"><path d=\"M10 2 L17 17 L10 13 L3 17 Z\" fill=\"#fff\"/></svg></i><div><small>'+((window.__gMenu&&window.__gMenu.target())?'Waypoint':'Next stop')+'</small><b>'+(nx2.s[0]<7?'0'+nx2.s[0]+' · ':'')+nx2.s[1]+'</b><span>'+dd+' m · follow the pink arrow</span></div>';window.__tgt=nx2}
     else{gpsA.visible=false;window.__tgt=null;ui.obj.innerHTML='<small>Route complete</small><b>All stops reached</b><span>Press M for the map, packages and contact</span>';}
-    var hy_=Math.max(0,C.position.y-4);S.fog.near=60+hy_*2.2;S.fog.far=300+hy_*5;drawMap();R.render(S,C)}
+    var hy_=Math.max(0,C.position.y-4);S.fog.near=60+hy_*2.2;S.fog.far=300+hy_*5;drawMap();if(PP){PP.grade.uniforms.time.value=ts/1000;if(PP.bokeh){PP.bokeh.enabled=!!cine;if(cine)PP.bokeh.uniforms.focus.value=C.position.distanceTo(P.root.position)}PP.cp.render()}else R.render(S,C)}
   // ---- water around the island (rivers) ----
   var LX0=I0*PX-RD,LX1=I1*PX+RD,LZ0=J0*PZ-RD,LZ1=J1*PZ+RD;
   ground.geometry.dispose();ground.geometry=new T.PlaneGeometry(LX1-LX0,LZ1-LZ0);ground.position.set((LX0+LX1)/2,0,(LZ0+LZ1)/2);
@@ -1241,89 +1273,97 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
   }
 
   // original guide character (built from primitives)
-  // original guide character v2 (lathe-modelled, procedural skin/denim)
+  // original guide character v3 — new male creator (oat hoodie, olive cargos, curly top, glasses, camera on sling)
   function makeGuy(T,M){
     function ctex(w,h,draw){var c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);var t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;t.wrapS=t.wrapT=T.RepeatWrapping;return t}
     function speck(x,w,h,base,n,a,cols){x.fillStyle=base;x.fillRect(0,0,w,h);for(var i=0;i<n;i++){x.fillStyle=cols[i%cols.length].replace('A',(Math.random()*a).toFixed(3));var s=Math.random()*2+.5;x.fillRect(Math.random()*w,Math.random()*h,s,s)}}
-    var skinT=ctex(128,128,function(x,w,h){speck(x,w,h,'#c78d66',2600,.12,['rgba(150,70,50,A)','rgba(255,220,190,A)'])});
-    var denimT=ctex(128,128,function(x,w,h){speck(x,w,h,'#3c5679',3000,.18,['rgba(255,255,255,A)','rgba(10,20,40,A)']);x.strokeStyle='rgba(255,255,255,.06)';for(var i=-h;i<w;i+=4){x.beginPath();x.moveTo(i,0);x.lineTo(i+h,h);x.stroke()}});denimT.repeat.set(2,3);
-    var jackT=ctex(128,128,function(x,w,h){speck(x,w,h,'#2b2f36',2200,.10,['rgba(255,255,255,A)','rgba(0,0,0,A)'])});
+    var skinT=ctex(128,128,function(x,w,h){speck(x,w,h,'#8f5b3c',2800,.14,['rgba(60,25,15,A)','rgba(230,170,130,A)'])});
+    var knitT=ctex(128,128,function(x,w,h){speck(x,w,h,'#d8ccb6',2400,.12,['rgba(255,255,255,A)','rgba(90,70,50,A)']);x.strokeStyle='rgba(120,100,80,.10)';for(var i=0;i<w;i+=3){x.beginPath();x.moveTo(i,0);x.lineTo(i,h);x.stroke()}});knitT.repeat.set(2,2);
+    var cargoT=ctex(128,128,function(x,w,h){speck(x,w,h,'#55603f',2600,.14,['rgba(255,255,255,A)','rgba(20,25,10,A)']);x.strokeStyle='rgba(0,0,0,.07)';for(var i=-h;i<w;i+=5){x.beginPath();x.moveTo(i,0);x.lineTo(i+h,h);x.stroke()}});cargoT.repeat.set(2,3);
+    var hairT=ctex(64,64,function(x,w,h){speck(x,w,h,'#17110d',900,.35,['rgba(70,50,35,A)','rgba(0,0,0,A)'])});
     function SM(o){return new T.MeshStandardMaterial(o)}
-    var mSk=SM({map:skinT,color:0xffffff,roughness:.55,emissive:0x2a0e06,emissiveIntensity:.35}),mJ=SM({map:jackT,roughness:.7}),mJ2=M(0x1d2026,.75),
-        mT=M(0xeef0f3,.9),mP=SM({map:denimT,roughness:.9}),mSh=M(0xf4f4f2,.45),mSo=M(0xd8d8d4,.6),mGum=M(0x8a6a4a,.8),mLace=M(0x2b2b2b,.6),
-        mH=SM({map:ctex(128,128,function(x,w,h){x.fillStyle='#16171a';x.fillRect(0,0,w,h);for(var i=0;i<900;i++){x.strokeStyle='rgba('+(Math.random()<.5?'60,55,50':'0,0,0')+','+(Math.random()*.5)+')';x.beginPath();var X=Math.random()*w,Y=Math.random()*h;x.moveTo(X,Y);x.lineTo(X+Math.random()*4-2,Y+8+Math.random()*10);x.stroke()}}),roughness:.8}),mC=M(0x101114,.35,.3),mL=M(0x8b919b,.25,.7),mA=M(0xff4fa3,.5),
-        mEw=M(0xf3efe8,.35),mIr=M(0x3a2516,.3),mPu=M(0x050505,.2),mLip=M(0xa5634e,.6),mBrow=M(0x17130f,.8),mBag=M(0x1b1d21,.85);
+    var mSk=SM({map:skinT,roughness:.5,emissive:0x2a0c04,emissiveIntensity:.3}),mHd=SM({map:knitT,roughness:.9}),mHd2=M(0xc6b99f,.9),mPk=M(0xff4fa3,.5),
+        mCg=SM({map:cargoT,roughness:.9}),mCg2=M(0x4a5436,.9),mShoe=M(0x1a1b1e,.55),mSole=M(0xf1efe8,.6),mLace=M(0xf1efe8,.6),
+        mH=SM({map:hairT,roughness:.85}),mFade=SM({color:0x2a1c14,roughness:.9}),mBeard=SM({map:hairT,roughness:.9}),
+        mEw=M(0xf3efe8,.35),mIr=M(0x2a1a10,.3),mPu=M(0x050505,.2),mLip=M(0x6e3b2c,.6),mGl=M(0x111111,.3,.4),mLens=SM({color:0x223040,roughness:.05,metalness:.9,transparent:true,opacity:.35}),
+        mBag=M(0x141518,.7),mStrap=M(0x202226,.8),mBuckle=M(0x9aa0a8,.3,.8),mGim=M(0x1d1e21,.4,.3),mPh=SM({color:0x0b0f18,roughness:.1,metalness:.6});
     function mesh(g,m,x,y,z){var o=new T.Mesh(g,m);o.position.set(x||0,y||0,z||0);o.castShadow=true;return o}
     function lathe(pts,m,seg){return new T.Mesh(new T.LatheGeometry(pts.map(function(p){return new T.Vector2(p[0],p[1])}),seg||18),m)}
     var root=new T.Group(),body=new T.Group();root.add(body);var legs=[],arms=[];
-    // legs
+    // legs: relaxed cargo pants with side pockets, chunky black sneakers
     [-1,1].forEach(function(s){var th=new T.Group();th.position.set(s*.82,9.1,0);body.add(th);
-      var u=lathe([[0,.2],[.84,.1],[.86,-.6],[.76,-2.2],[.62,-3.8],[.59,-4.05],[.56,-4.25],[0,-4.3]],mP);th.add(u);
+      th.add(lathe([[0,.2],[.9,.1],[.92,-.6],[.84,-2.2],[.72,-3.8],[.66,-4.05],[.6,-4.25],[0,-4.3]],mCg));
+      var pk=mesh(new T.BoxGeometry(.22,1.1,.95),mCg2,s*.86,-2.2,.05);th.add(pk);pk.add(mesh(new T.BoxGeometry(.24,.12,.97),mCg2,0,.5,0));
       var kn=new T.Group();kn.position.y=-4.05;th.add(kn);
-      var l=lathe([[0,.2],[.57,.15],[.58,0],[.57,-1.2],[.5,-2.8],[.5,-3.7],[.55,-3.95],[0,-4]],mP);kn.add(l);
+      kn.add(lathe([[0,.2],[.64,.15],[.66,0],[.64,-1.2],[.6,-2.8],[.62,-3.55],[.7,-3.85],[0,-3.95]],mCg));
       var ft=new T.Group();ft.position.y=-4.0;kn.add(ft);
-      var shoe=mesh(new T.BoxGeometry(1.08,.72,2.1),mSh,0,-.18,.25);ft.add(shoe);
-      var toe=mesh(new T.SphereGeometry(.56,14,10),mSh,0,-.26,1.3);toe.scale.set(.98,.66,.9);ft.add(toe);
-      var sole=mesh(new T.BoxGeometry(1.16,.24,2.95),mSo,0,-.62,.5);ft.add(sole);ft.add(mesh(new T.BoxGeometry(1.18,.06,2.97),mGum,0,-.74,.5));
-      for(var k=0;k<3;k++)ft.add(mesh(new T.BoxGeometry(.6,.05,.1),mLace,0,.2,.55+k*.28));
+      var sh=mesh(new T.BoxGeometry(1.15,.8,2.2),mShoe,0,-.12,.25);ft.add(sh);
+      var toe=mesh(new T.SphereGeometry(.6,14,10),mShoe,0,-.24,1.35);toe.scale.set(.97,.66,.9);ft.add(toe);
+      ft.add(mesh(new T.BoxGeometry(1.26,.38,3.05),mSole,0,-.64,.5));
+      for(var k=0;k<3;k++)ft.add(mesh(new T.BoxGeometry(.62,.06,.1),mLace,0,.3,.55+k*.28));
       legs.push({th:th,kn:kn,ft:ft,s:s})});
-    // hips + belt
-    var hip=lathe([[0,8.4],[1.5,8.5],[1.62,9.3],[1.58,10.1],[0,10.15]],mP,20);hip.scale.z=.68;body.add(hip);
-    var belt=lathe([[1.6,9.85],[1.63,9.85],[1.63,10.2],[1.6,10.2]],M(0x2a1e16,.6),20);belt.scale.z=.7;body.add(belt);body.add(mesh(new T.BoxGeometry(.45,.32,.1),mL,0,10.02,1.14));
-    // torso (open jacket over tee)
+    var hip=lathe([[0,8.4],[1.55,8.5],[1.68,9.3],[1.64,10.0],[0,10.05]],mCg,20);hip.scale.z=.7;body.add(hip);
+    // torso: oversized hoodie with kangaroo pocket, hood, pink drawstrings
     var tor=new T.Group();tor.position.y=10;body.add(tor);
-    var tee=lathe([[1.5,0],[1.62,1.5],[1.75,3.2],[1.6,4.6],[0,4.9]],mT,20);tee.scale.z=.6;tor.add(tee);
-    var jk=lathe([[1.62,-.1],[1.72,.4],[1.78,2.0],[1.98,3.5],[2.08,4.35],[1.8,4.95],[1.05,5.2],[.65,5.25]],mJ,24);jk.scale.z=.64;
-    jk.geometry=new T.LatheGeometry(jk.geometry.parameters.points,24,Math.PI*.13,Math.PI*1.74);tor.add(jk);
-    [-1,1].forEach(function(s){var lap=mesh(new T.BoxGeometry(.32,4.7,.1),mJ2,s*.62,2.5,1.1);lap.rotation.z=s*-.06;lap.rotation.y=s*.25;tor.add(lap);
-      var st=mesh(new T.BoxGeometry(.16,3.0,.1),mA,s*.82,3.8,1.18);st.rotation.z=s*.3;tor.add(st)});
-    var col=mesh(new T.TorusGeometry(.95,.3,8,20,Math.PI*1.3),mJ2,0,5.1,-.05);col.rotation.x=Math.PI/2;col.rotation.z=Math.PI*.85;col.scale.y=.8;tor.add(col);
-    tor.add(mesh(new T.BoxGeometry(1.5,1.0,.7),mC,0,2.4,1.42));var ln=mesh(new T.CylinderGeometry(.36,.4,.5,18),mL,.15,2.4,1.85);ln.rotation.x=Math.PI/2;tor.add(ln);
-    var gl=mesh(new T.CylinderGeometry(.25,.25,.05,16),M(0x0b1220,.05,.9),.15,2.4,2.11);gl.rotation.x=Math.PI/2;tor.add(gl);
-    var bp=mesh(new T.BoxGeometry(2.7,3.4,1.2),mBag,0,2.6,-1.45);tor.add(bp);bp.add(mesh(new T.BoxGeometry(2.3,.14,.06),mA,0,1.2,-.62));bp.add(mesh(new T.BoxGeometry(2.1,1.2,.45),M(0x24272c,.8),0,-.85,-.78));
+    var hd_=lathe([[1.7,-.35],[1.86,.2],[1.9,1.6],[2.05,3.3],[2.15,4.3],[1.85,4.95],[1.0,5.2],[.62,5.25]],mHd,26);hd_.scale.z=.68;tor.add(hd_);
+    var rib=lathe([[1.66,-.55],[1.74,-.55],[1.74,-.1],[1.66,-.1]],mHd2,26);rib.scale.z=.68;tor.add(rib);
+    var pocket=mesh(new T.BoxGeometry(2.3,1.3,.12),mHd2,0,.9,1.2);pocket.rotation.x=-.06;tor.add(pocket);
+    var hood=mesh(new T.TorusGeometry(.95,.42,10,22,Math.PI*1.25),mHd,0,5.05,-.25);hood.rotation.x=Math.PI/2+.25;hood.rotation.z=Math.PI*.88;hood.scale.set(1,.85,.9);tor.add(hood);
+    var hoodBack=mesh(new T.SphereGeometry(.9,14,10),mHd,0,5.0,-1.05);hoodBack.scale.set(1.2,.7,.6);tor.add(hoodBack);
+    [-1,1].forEach(function(s){var ds=mesh(new T.CylinderGeometry(.05,.05,1.6,6),mPk,s*.32,3.9,1.34);ds.rotation.z=s*.04;tor.add(ds);tor.add(mesh(new T.SphereGeometry(.09,8,6),mPk,s*.34,3.08,1.36))});
+    // crossbody sling bag
+    var strap=mesh(new T.BoxGeometry(.2,5.3,.1),mStrap,0,2.75,1.3);strap.rotation.z=-.62;tor.add(strap);
+    var strapB=mesh(new T.BoxGeometry(.2,5.1,.1),mStrap,0,2.75,-1.2);strapB.rotation.z=.62;tor.add(strapB);var cam=mesh(new T.BoxGeometry(.9,.62,.42),mBag,.55,3.7,1.42);cam.rotation.z=-.62;tor.add(cam);var cl=mesh(new T.CylinderGeometry(.22,.24,.3,16),mBuckle,.6,3.62,1.7);cl.rotation.x=Math.PI/2;tor.add(cl);
+    var sling=mesh(new T.BoxGeometry(1.9,.95,.55),mBag,-1.15,1.25,1.0);sling.rotation.z=-.5;sling.rotation.y=.35;tor.add(sling);sling.add(mesh(new T.BoxGeometry(1.7,.06,.57),mPk,0,.18,0));sling.add(mesh(new T.BoxGeometry(.28,.2,.6),mBuckle,.75,0,0));
     // neck + head
-    tor.add(mesh(new T.CylinderGeometry(.5,.58,1.0,14),mSk,0,5.45,.05));
-    var hd=new T.Group();hd.position.y=5.7;hd.scale.setScalar(1.08);tor.add(hd);
-    var skull=lathe([[0,0],[.5,.06],[.85,.35],[1.02,.85],[1.12,1.45],[1.14,2.0],[1.02,2.5],[.66,2.86],[0,2.95]],mSk,26);skull.scale.set(.9,1,1);hd.add(skull);
-    var jaw=mesh(new T.SphereGeometry(.74,16,12),mSk,0,.66,.18);jaw.scale.set(1.08,.72,.95);hd.add(jaw);
+    tor.add(mesh(new T.CylinderGeometry(.52,.6,1.0,14),mSk,0,5.45,.05));
+    var hd=new T.Group();hd.position.y=5.7;hd.scale.setScalar(1.06);tor.add(hd);
+    var skull=lathe([[0,0],[.5,.06],[.86,.35],[1.04,.85],[1.13,1.45],[1.15,2.0],[1.03,2.5],[.66,2.86],[0,2.95]],mSk,26);skull.scale.set(.9,1,1);hd.add(skull);
+    var jaw=mesh(new T.SphereGeometry(.76,16,12),mSk,0,.66,.2);jaw.scale.set(1.1,.74,.95);hd.add(jaw);
+    // short beard + moustache (shell slightly outside the jaw)
+    var beard=mesh(new T.SphereGeometry(.8,18,12,Math.PI*.15,Math.PI*1.7,Math.PI*.45,Math.PI*.55),mBeard,0,.72,.2);beard.rotation.y=Math.PI;beard.scale.set(1.12,.82,1.02);hd.add(beard);
+    var mus=mesh(new T.BoxGeometry(.62,.12,.12),mBeard,0,1.03,1.04);hd.add(mus);
     [-1,1].forEach(function(s){
-      var ew=mesh(new T.SphereGeometry(.2,14,10),mEw,s*.4,1.62,.9);ew.scale.set(1.1,.7,.5);hd.add(ew);
-      hd.add(mesh(new T.SphereGeometry(.105,12,8),mIr,s*.4,1.62,.99));hd.add(mesh(new T.SphereGeometry(.05,8,6),mPu,s*.4,1.62,1.04));
-      var lid=mesh(new T.SphereGeometry(.22,14,8,0,Math.PI*2,0,Math.PI*.45),mSk,s*.4,1.64,.9);lid.scale.set(1.1,.7,.55);lid.rotation.x=.35;hd.add(lid);
-      var br=mesh(new T.BoxGeometry(.48,.09,.12),mBrow,s*.42,1.95,.95);br.rotation.z=s*-.1;hd.add(br);
+      var ew=mesh(new T.SphereGeometry(.19,14,10),mEw,s*.4,1.62,.9);ew.scale.set(1.1,.7,.5);hd.add(ew);
+      hd.add(mesh(new T.SphereGeometry(.1,12,8),mIr,s*.4,1.62,.99));hd.add(mesh(new T.SphereGeometry(.05,8,6),mPu,s*.4,1.62,1.03));
+      var lid=mesh(new T.SphereGeometry(.21,14,8,0,Math.PI*2,0,Math.PI*.45),mSk,s*.4,1.64,.9);lid.scale.set(1.1,.7,.55);lid.rotation.x=.35;hd.add(lid);
+      var br=mesh(new T.BoxGeometry(.5,.11,.12),mH,s*.42,1.96,.95);br.rotation.z=s*-.08;hd.add(br);
       var ear=mesh(new T.SphereGeometry(.3,12,10),mSk,s*1.0,1.55,0);ear.scale.set(.35,.6,.45);hd.add(ear);
-      });
-    var nose=mesh(new T.ConeGeometry(.17,.62,10),mSk,0,1.42,1.02);nose.rotation.x=Math.PI/2+.35;hd.add(nose);
-    var nt=mesh(new T.SphereGeometry(.17,12,8),mSk,0,1.2,1.12);nt.scale.set(1.25,.85,.9);hd.add(nt);
-    var ul=mesh(new T.CylinderGeometry(.06,.06,.5,8),mLip,0,.88,1.0);ul.rotation.z=Math.PI/2;hd.add(ul);
-    var ll=mesh(new T.CylinderGeometry(.075,.075,.42,8),mLip,0,.79,.98);ll.rotation.z=Math.PI/2;hd.add(ll);
-    // hair: cap + back + textured quiff
-    var hc=mesh(new T.SphereGeometry(1.2,26,18,0,Math.PI*2,0,Math.PI*.55),mH,0,1.82,-.06);hc.scale.set(.93,1.08,1.06);hc.rotation.x=-.22;hd.add(hc);
-    var hb=mesh(new T.SphereGeometry(1.14,22,14,Math.PI*.55,Math.PI*.9,Math.PI*.3,Math.PI*.32),mH,0,1.7,-.06);hb.scale.set(.95,1,1.02);hd.add(hb);
-    var fr=mesh(new T.SphereGeometry(.75,18,12),mH,.12,2.62,.5);fr.scale.set(1.25,.42,.8);fr.rotation.z=-.12;fr.rotation.x=-.2;hd.add(fr);[-1,1].forEach(function(s){var sb=mesh(new T.SphereGeometry(.3,10,8),mH,s*.95,1.85,.28);sb.scale.set(.3,.9,.6);hd.add(sb)});
-    // arms
-    [-1,1].forEach(function(s){var sp=new T.Group();sp.position.set(s*1.85,4.4,0);tor.add(sp);var sh_=mesh(new T.SphereGeometry(.7,14,10),mJ);sh_.scale.set(.78,.58,.74);sh_.position.y=-.1;sh_.position.x=-s*.12;sp.add(sh_);
-      sp.add(lathe([[0,.2],[.68,0],[.64,-1.2],[.54,-3.0],[.5,-3.25],[.4,-3.5],[0,-3.55]],mJ));
+      // glasses
+      var rim=mesh(new T.TorusGeometry(.27,.04,8,20),mGl,s*.42,1.62,1.1);hd.add(rim);var lens=mesh(new T.CircleGeometry(.26,18),mLens,s*.42,1.62,1.1);hd.add(lens);
+      var arm=mesh(new T.BoxGeometry(.05,.05,1.05),mGl,s*.72,1.66,.6);arm.rotation.y=s*.12;hd.add(arm)});
+    hd.add(mesh(new T.BoxGeometry(.2,.04,.04),mGl,0,1.66,1.12));
+    var nose=mesh(new T.ConeGeometry(.19,.6,10),mSk,0,1.4,1.02);nose.rotation.x=Math.PI/2+.35;hd.add(nose);
+    var nt=mesh(new T.SphereGeometry(.2,12,8),mSk,0,1.2,1.12);nt.scale.set(1.35,.85,.9);hd.add(nt);
+    var ll=mesh(new T.CylinderGeometry(.08,.08,.44,8),mLip,0,.84,1.0);ll.rotation.z=Math.PI/2;hd.add(ll);
+    // hair: faded sides + curly top
+    var fade=mesh(new T.SphereGeometry(1.17,24,16,0,Math.PI*2,0,Math.PI*.44),mFade,0,1.86,-.06);fade.scale.set(.95,1.05,1.05);fade.rotation.x=-.32;hd.add(fade);var nape=mesh(new T.SphereGeometry(1.1,20,12,Math.PI*.6,Math.PI*.8,Math.PI*.42,Math.PI*.2),mFade,0,1.75,-.04);nape.scale.set(.95,1,1.02);hd.add(nape);
+    for(var k=0;k<46;k++){var a=Math.random()*Math.PI*2,rr=Math.sqrt(Math.random())*.82,cx=Math.cos(a)*rr*.9,cz=Math.sin(a)*rr+.05,cy=2.55+Math.sqrt(Math.max(0,.75-rr*rr))*.55;
+      var cu=mesh(new T.IcosahedronGeometry(.19+Math.random()*.07,0),mH,cx,cy,cz);cu.rotation.set(Math.random()*3,Math.random()*3,0);hd.add(cu)}
+    // arms: hoodie sleeves, ribbed cuffs, hands
+    [-1,1].forEach(function(s){var sp=new T.Group();sp.position.set(s*1.92,4.35,0);tor.add(sp);var sh_=mesh(new T.SphereGeometry(.72,14,10),mHd);sh_.scale.set(.78,.6,.76);sh_.position.set(-s*.12,-.08,0);sp.add(sh_);
+      sp.add(lathe([[0,.2],[.74,0],[.72,-1.2],[.62,-3.0],[.56,-3.3],[.44,-3.55],[0,-3.6]],mHd));
       var el=new T.Group();el.position.y=-3.15;sp.add(el);
-      el.add(lathe([[0,.3],[.42,.25],[.5,0],[.47,-1.4],[.42,-2.45],[0,-2.5]],mJ));el.add(lathe([[.44,-2.25],[.46,-2.3],[.46,-2.6],[.44,-2.62]],mJ2));
+      el.add(lathe([[0,.3],[.46,.25],[.56,0],[.54,-1.4],[.5,-2.2],[0,-2.25]],mHd));el.add(lathe([[.42,-2.1],[.47,-2.12],[.47,-2.62],[.42,-2.64]],mHd2));
       var wr=new T.Group();wr.position.y=-2.7;el.add(wr);
       wr.add(mesh(new T.CylinderGeometry(.27,.3,.4,10),mSk,0,-.05,0));
-      var palm=mesh(new T.BoxGeometry(.32,.85,.68),mSk,0,-.55,.02);wr.add(palm);
-      for(var f=0;f<4;f++){var fg=new T.Group();fg.position.set(0,-.95,-.24+f*.16);wr.add(fg);var fi=mesh(new T.CylinderGeometry(.085,.08,.48,6),mSk,0,-.22,0);fg.add(fi);fg.rotation.z=s*.55}
+      wr.add(mesh(new T.BoxGeometry(.32,.85,.68),mSk,0,-.55,.02));
+      for(var f=0;f<4;f++){var fg=new T.Group();fg.position.set(0,-.95,-.24+f*.16);wr.add(fg);fg.add(mesh(new T.CylinderGeometry(.085,.08,.48,6),mSk,0,-.22,0));fg.rotation.z=s*.55}
       var th=mesh(new T.CylinderGeometry(.08,.075,.45,6),mSk,s*-.05,-.45,.42);th.rotation.x=-.7;wr.add(th);
+
       sp.rotation.z=s*.1;arms.push({sp:sp,el:el,wr:wr,s:s})});
-    // walk/run/idle
     var pA=0;
     function pose(ph,r,ts,wave){var a=Math.min(1,r),run=Math.max(0,Math.min(1,r-1)),amp=.55+.3*run;
       legs.forEach(function(l){var o=l.s>0?0:Math.PI,sn=Math.sin(ph+o),cs=Math.cos(ph+o);
         l.th.rotation.x=-sn*amp*a-.12*run;
-        l.kn.rotation.x=(Math.max(0,cs)*(.9+.9*run)+.08+.45*run*Math.max(0,-sn)+.12*run)*a;   // knee bends on the swing phase
-        l.ft.rotation.x=(sn>0?-sn*.25:-sn*.35)*a-l.kn.rotation.x*.25; // heel strike / toe off
-        l.th.rotation.z=l.s*.02});
+        l.kn.rotation.x=(Math.max(0,cs)*(.9+.9*run)+.08+.45*run*Math.max(0,-sn)+.12*run)*a;
+        l.ft.rotation.x=(sn>0?-sn*.25:-sn*.35)*a-l.kn.rotation.x*.25;l.th.rotation.z=l.s*.02});
       arms.forEach(function(q){var o=q.s>0?Math.PI:0,sn=Math.sin(ph+o);
         q.sp.rotation.x=sn*(.45+.25*run)*a+.05;q.el.rotation.x=-(.25+.35*a+.7*run)-Math.max(0,sn)*.25*a;q.sp.rotation.z=q.s*(.1+.04*a);q.wr.rotation.z=q.s*.08});
-      var near=arms[0];pA+=((wave?1:0)-pA)*.15;
-      if(pA>.02){var pa=arms[0];pa.sp.rotation.x=pa.sp.rotation.x*(1-pA)-1.45*pA;pa.sp.rotation.z=pa.sp.rotation.z*(1-pA)-.35*pA;pa.el.rotation.x=pa.el.rotation.x*(1-pA)-.15*pA}
+      // the gimbal hand is held a little forward like he's filming
+      var g=arms[0];
+      pA+=((wave?1:0)-pA)*.15;
+      if(pA>.02){g.sp.rotation.x=g.sp.rotation.x*(1-pA)-1.35*pA;g.sp.rotation.z=g.sp.rotation.z*(1-pA)-.3*pA;g.el.rotation.x=g.el.rotation.x*(1-pA)-.35*pA}
       var bob=a>.05?Math.abs(Math.sin(ph))*(.25+.25*run)*a:Math.sin(ts/900)*.05;body.position.y=bob-(a>.05?.15*a:0);
       body.rotation.z=Math.sin(ph)*.035*a;body.rotation.y=Math.sin(ph)*.08*a;tor.rotation.y=-Math.sin(ph)*.16*a;tor.rotation.x=.04*a+.16*run;
       hd.rotation.y=Math.sin(ph)*.1*a;hd.rotation.x=-.1*run;tor.scale.y=1+(a<.05?Math.sin(ts/900)*.006:0)}
