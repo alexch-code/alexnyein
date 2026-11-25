@@ -334,7 +334,7 @@ kbd{border:none;background:linear-gradient(180deg,#4a4f58,#33373e);box-shadow:in
 /* ===== third-person game ===== */
 html.in-game,html.in-game body{overflow:hidden}
 .g-hint[hidden],#gStart[hidden]{display:none!important}
-#game{position:fixed;inset:0;z-index:60;background:#d8c29b;font-family:var(--f)}
+#game{position:fixed;inset:0;z-index:60;background:#0d0b14;font-family:var(--f)}
 #game[hidden]{display:none}
 #gCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none;touch-action:none;cursor:grab}
 #gCanvas:active{cursor:grabbing}
@@ -496,6 +496,10 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
 @media (pointer:coarse),(max-width:760px){.g-chatbtn{right:12px;bottom:auto;top:196px;padding:8px 12px 8px 8px}#game.intro .g-chatbtn{top:auto;bottom:66px}
  .g-chat,#game.intro .g-chat{left:10px;right:10px;bottom:10px;width:auto;max-height:72vh}#game.chat #gJoy,#game.chat #gAct{visibility:hidden}}
 @media (prefers-reduced-motion:reduce){.g-chatbtn.new i::before,.g-chat .ty i{animation:none}}
+.g-bottip{position:absolute;left:0;top:0;z-index:5;display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid rgba(255,79,163,.6);border-radius:12px 12px 12px 3px;background:rgba(14,16,20,.86);color:#fff;font:500 12.5px var(--f);white-space:nowrap;cursor:pointer;pointer-events:auto;box-shadow:0 6px 20px rgba(0,0,0,.35);animation:gtip .35s ease-out}
+.g-bottip[hidden]{display:none!important}.g-bottip b{color:var(--pink);font:700 11px var(--mono,monospace);letter-spacing:.08em}.g-bottip kbd{font:10px var(--mono,monospace);padding:1px 5px;border-radius:4px;background:rgba(255,255,255,.14)}
+@keyframes gtip{from{opacity:0}}
+#game.menu .g-bottip,#game.intro .g-bottip{display:none!important}
 </style>
 </head>
 <body>
@@ -602,11 +606,12 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
   <canvas id="gMap" width="240" height="160" aria-hidden="true"></canvas>
   <div id="gHint" class="g-hint" hidden></div>
   <div class="g-fx" aria-hidden="true"></div><div class="g-bar t"></div><div class="g-bar b"></div><div id="gCine" class="g-cine" aria-live="polite"><b></b><span></span></div>
-  <div class="g-keys" aria-hidden="true"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk</span><span><kbd>Shift</kbd> run</span><span>Drag to look</span><span><kbd>E</kbd> open stop</span><span><kbd>M</kbd> map</span><span><kbd>C</kbd> chat</span></div>
+  <div class="g-keys" aria-hidden="true"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk</span><span><kbd>Shift</kbd> run</span><span>Drag to look</span><span><kbd>E</kbd> open stop</span><span><kbd>M</kbd> map</span><span><kbd>T</kbd> talk to ALX</span></div>
   <div id="gJoy" aria-hidden="true"><i></i></div><button id="gAct" type="button">E</button>
+  <button id="gBotTip" class="g-bottip" type="button" hidden><b>ALX</b> Hi! Ask me anything <kbd>T</kbd></button>
   <button id="gChatBtn" class="g-chatbtn new" type="button" aria-expanded="false" aria-controls="gChat"><i></i><span>Ask Alex</span></button>
   <section id="gChat" class="g-chat" hidden aria-label="Chat with Alex's assistant">
-    <header><div class="av">A</div><div><b>Alex's assistant</b><small><i></i>Automated · replies instantly</small></div><button id="gChatX" type="button" aria-label="Close chat">×</button></header>
+    <header><div class="av">A</div><div><b>ALX · Alex's assistant</b><small><i></i>Automated · replies instantly</small></div><button id="gChatX" type="button" aria-label="Close chat">×</button></header>
     <div id="gChatLog" class="log" aria-live="polite"></div>
     <div id="gChatChips" class="chips"></div>
     <form id="gChatForm" autocomplete="off"><input id="gChatIn" type="text" maxlength="300" placeholder="Ask about services, prices, results…" aria-label="Message"><button type="submit" aria-label="Send">➤</button></form>
@@ -1013,10 +1018,10 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
     try{var mob=matchMedia('(pointer:coarse)').matches,w=Math.max(1,cv.clientWidth),h=Math.max(1,cv.clientHeight),pr=R.getPixelRatio();
       var rt=(R.capabilities.isWebGL2&&T.WebGLMultisampleRenderTarget)?new T.WebGLMultisampleRenderTarget(w*pr,h*pr,{type:T.HalfFloatType}):new T.WebGLRenderTarget(w*pr,h*pr,{type:T.HalfFloatType});
       var cp=new T.EffectComposer(R,rt);cp.addPass(new T.RenderPass(S,C));
-      var bloom=mob?null:new T.UnrealBloomPass(new T.Vector2(w,h),.32,.45,2.2);if(bloom)cp.addPass(bloom);
+      var bloom=mob?null:new T.UnrealBloomPass(new T.Vector2(w,h),.62,.55,.9);if(bloom)cp.addPass(bloom);
       var bokeh=(!mob&&T.BokehPass)?new T.BokehPass(S,C,{focus:4,aperture:.0006,maxblur:.006,width:w,height:h}):null;if(bokeh){bokeh.enabled=false;cp.addPass(bokeh)}
-      var grade=new T.ShaderPass({uniforms:{tDiffuse:{value:null},time:{value:0},res:{value:new T.Vector2(w,h)},expo:{value:.82},
-        lift:{value:new T.Vector3(-.008,.002,.022)},gam:{value:new T.Vector3(1.0,.985,.95)},gain:{value:new T.Vector3(1.04,1.0,.9)},sat:{value:1.06},vig:{value:.5}},
+      var grade=new T.ShaderPass({uniforms:{tDiffuse:{value:null},time:{value:0},res:{value:new T.Vector2(w,h)},expo:{value:1.05},
+        lift:{value:new T.Vector3(-.004,-.006,.03)},gam:{value:new T.Vector3(1.0,.98,1.04)},gain:{value:new T.Vector3(1.0,.97,1.06)},sat:{value:1.14},vig:{value:.62}},
         vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
         fragmentShader:['uniform sampler2D tDiffuse;uniform float time,expo,sat,vig;uniform vec2 res;uniform vec3 lift,gam,gain;varying vec2 vUv;',
           'vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}',
@@ -1025,25 +1030,25 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
           'c=aces(c*expo);c=pow(c,vec3(1./2.2));',
           'c=gain*(c+lift*(1.-c));c=pow(max(c,0.),1./gam);',
           'c=mix(c,c*c*(3.-2.*c),.22);',
-          'float l=dot(c,vec3(.2126,.7152,.0722));c=mix(vec3(l),c,sat);c+=vec3(.03,.015,0.)*smoothstep(.7,1.,l);',
+          'float l=dot(c,vec3(.2126,.7152,.0722));c=mix(vec3(l),c,sat);c+=vec3(.02,0.,.03)*smoothstep(.6,1.,l);',
           'c*=1.-r*vig*1.3;',
           'float g=fract(sin(dot(vUv*res+time*61.,vec2(12.9898,78.233)))*43758.5453);c+=(g-.5)*.03;',
           'gl_FragColor=vec4(clamp(c,0.,1.),1.);}'].join('\n')});
       cp.addPass(grade);
       R.toneMapping=T.NoToneMapping;R.outputEncoding=T.LinearEncoding;cv.style.filter='none';
       PP={cp:cp,bloom:bloom,bokeh:bokeh,grade:grade}}catch(e){PP=null}}
-  var HAZE=0xe6b67e;var S=new T.Scene();S.fog=new T.Fog(HAZE,60,300);
+  var HAZE=0x130e22;var S=new T.Scene();S.fog=new T.Fog(HAZE,30,240);
   var C=new T.PerspectiveCamera(60,1,.1,900);
   // sky dome (gradient + sun glow)
   var skyMat=new T.ShaderMaterial({side:T.BackSide,depthWrite:false,fog:false,uniforms:{sun:{value:new T.Vector3(-150,48,95).normalize()}},
     vertexShader:'varying vec3 vD;void main(){vD=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader:'uniform vec3 sun;varying vec3 vD;void main(){float h=max(vD.y,0.);vec3 top=vec3(.34,.48,.72),hor=vec3(1.0,.68,.40);vec3 c=mix(hor,top,pow(h,.5));float s=max(dot(vD,sun),0.);c+=vec3(1.,.85,.55)*pow(s,250.)*2.2+vec3(1.,.55,.25)*pow(s,5.)*.5;gl_FragColor=vec4(c,1.);}'});
+    fragmentShader:'uniform vec3 sun;varying vec3 vD;float hs(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453);}void main(){float h=max(vD.y,0.);vec3 top=vec3(.010,.012,.032),hor=vec3(.085,.05,.14);vec3 c=mix(hor,top,pow(h,.45));c+=vec3(.32,.09,.30)*pow(1.-h,10.)*.55;float s=max(dot(vD,sun),0.);c+=vec3(.75,.82,1.)*smoothstep(.9994,.9997,s)*1.4+vec3(.25,.3,.5)*pow(s,40.)*.25;vec3 q=floor(vD*420.);float st=step(.9985,hs(q))*smoothstep(.08,.35,h);c+=vec3(st)*.8;gl_FragColor=vec4(c,1.);}'});
   var sky=new T.Mesh(new T.SphereGeometry(800,32,16),skyMat);S.add(sky);
-  var hemi=new T.HemisphereLight(0xffd2a0,0x5c4330,.85);S.add(hemi);
+  var hemi=new T.HemisphereLight(0x5c68a8,0x1c1026,.3);S.add(hemi);
   // real HDRI sky + image-based lighting (Poly Haven, CC0) when available
-  if(T.RGBELoader){new T.RGBELoader().setDataType(T.UnsignedByteType).load('https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/equirectangular/pedestrian_overpass_1k.hdr',function(hdr){
+  if(false&&T.RGBELoader){new T.RGBELoader().setDataType(T.UnsignedByteType).load('https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/equirectangular/pedestrian_overpass_1k.hdr',function(hdr){
     var pm=new T.PMREMGenerator(R);var env=pm.fromEquirectangular(hdr).texture;S.environment=env;hdr.mapping=T.EquirectangularReflectionMapping;hemi.intensity=.45;R.toneMappingExposure=.95;pm.dispose()})}
-  var sun=new T.DirectionalLight(0xffae66,2.7);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);var sc=sun.shadow.camera;sc.left=-70;sc.right=70;sc.top=70;sc.bottom=-70;sc.near=1;sc.far=400;sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;
+  var sun=new T.DirectionalLight(0x9fb2ff,.42);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);var sc=sun.shadow.camera;sc.left=-70;sc.right=70;sc.top=70;sc.bottom=-70;sc.near=1;sc.far=400;sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;
   S.add(sun);S.add(sun.target);var SUN=new T.Vector3(-150,48,95);
   function M(c,r,m){return new T.MeshStandardMaterial({color:c,roughness:r==null?.75:r,metalness:m||0})}
   // ---- procedural textures ----
@@ -1052,24 +1057,30 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
   var asphalt=tex(512,512,function(x,w,h){noise(x,w,h,'#615d58',.11,26000);for(var i=0;i<14;i++){x.fillStyle='rgba(20,20,22,'+(.05+Math.random()*.08)+')';x.beginPath();x.ellipse(Math.random()*w,Math.random()*h,20+Math.random()*80,10+Math.random()*40,Math.random()*3,0,6.3);x.fill()}
     x.strokeStyle='rgba(25,25,27,.35)';x.lineWidth=1;for(var i=0;i<6;i++){x.beginPath();var px=Math.random()*w,py=Math.random()*h;x.moveTo(px,py);for(var k=0;k<8;k++){px+=Math.random()*30-15;py+=Math.random()*30-15;x.lineTo(px,py)}x.stroke()}},60,60);
   var concrete=tex(256,256,function(x,w,h){noise(x,w,h,'#b8ab95',.09,9000);x.strokeStyle='rgba(60,58,54,.35)';x.lineWidth=2;for(var i=0;i<=w;i+=64){x.beginPath();x.moveTo(i,0);x.lineTo(i,h);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(w,i);x.stroke()}},1,1);
-  function facade(kind){return tex(256,512,function(x,w,h){
+  var EMI={};function facade(kind){var ec=document.createElement('canvas');ec.width=256;ec.height=512;var ex=ec.getContext('2d');ex.fillStyle='#000';ex.fillRect(0,0,256,512);var et=new T.CanvasTexture(ec);et.encoding=T.sRGBEncoding;EMI[kind]=et;return tex(256,512,function(x,w,h){
     var base={brick:'#94604a',stone:'#c9b48e',glass:'#6f8290',white:'#ffffff'}[kind];noise(x,w,h,base,.12,12000);
     if(kind==='brick'){x.strokeStyle='rgba(50,30,25,.25)';for(var y=0;y<h;y+=6){x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke()}}
     var cols=kind==='glass'?6:5,rows=kind==='glass'?20:16,cw=w/cols,rh=h/rows;
     for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){var X=c*cw+cw*.18,Y=r*rh+rh*.22,ww=cw*.64,hh=rh*.6;if(kind==='glass'){X=c*cw+2;ww=cw-4;Y=r*rh+2;hh=rh-4}
-      var g=x.createLinearGradient(X,Y,X+ww,Y+hh);var lit=Math.random()<.06;g.addColorStop(0,lit?'#e9d9a8':'#9fb3c6');g.addColorStop(.5,lit?'#cdb98a':'#3d4b59');g.addColorStop(1,lit?'#b9a473':'#26313b');x.fillStyle=g;x.fillRect(X,Y,ww,hh);
+      var g=x.createLinearGradient(X,Y,X+ww,Y+hh);var lit=Math.random()<(kind==='glass'?.22:.38);g.addColorStop(0,lit?'#e9d9a8':'#3a4656');g.addColorStop(.5,lit?'#cdb98a':'#1c232c');g.addColorStop(1,lit?'#b9a473':'#11161c');x.fillStyle=g;x.fillRect(X,Y,ww,hh);
+      if(lit){var tone=Math.random();ex.fillStyle=tone<.62?'#ffc477':tone<.85?'#fff0d2':tone<.94?'#9fd0ff':'#ff7ac0';ex.globalAlpha=.55+Math.random()*.45;ex.fillRect(X,Y,ww,hh);ex.globalAlpha=1}
       if(kind!=='glass'){x.fillStyle='rgba(255,255,255,.18)';x.fillRect(X-1,Y+hh,ww+2,2)}}
     },1,1)}
   // ground-floor shopfronts (generic invented names)
   var SIGNS=['DELI','LAUNDRY','PHOTO LAB','PIZZA','HARDWARE','DINER','TACOS','GOLD & SILVER','BARBER','MARKET','PAWN','DONUTS'];
-  function shopTex(name,awn){return tex(512,128,function(x,w,h){noise(x,w,h,'#b9a88c',.1,4000);
+  var NEON=['#ff4fa3','#b35cff','#38d6ff','#ff9a3c','#7dffb2','#ff5a5a'];var SHE=[];
+  function shopTex(name,awn,k){var ec=document.createElement('canvas');ec.width=512;ec.height=128;var ex=ec.getContext('2d');ex.fillStyle='#000';ex.fillRect(0,0,512,128);
+    for(var q=0;q<3;q++){var X_=20+q*165;var gg=ex.createLinearGradient(0,46,0,118);gg.addColorStop(0,'#ffd9a0');gg.addColorStop(1,'#c47a3a');ex.fillStyle=gg;ex.globalAlpha=.42;ex.fillRect(X_,46,q===1?70:130,72);ex.globalAlpha=1}
+    ex.fillStyle=NEON[k%NEON.length];ex.font='700 18px Arial, sans-serif';ex.textAlign='center';ex.shadowColor=NEON[k%NEON.length];ex.shadowBlur=8;ex.fillText(name,256,17);ex.fillText(name,256,17);
+    var et=new T.CanvasTexture(ec);et.encoding=T.sRGBEncoding;SHE[k]=et;
+    return tex(512,128,function(x,w,h){noise(x,w,h,'#b9a88c',.1,4000);
     x.fillStyle='#2a2622';x.fillRect(0,h-10,w,10);
     for(var k=0;k<3;k++){var X=20+k*165;var g=x.createLinearGradient(X,40,X+120,118);g.addColorStop(0,'#8fa3b0');g.addColorStop(.6,'#2e3a42');g.addColorStop(1,'#1b2227');x.fillStyle=g;x.fillRect(X,46,k===1?70:130,72);
       if(k===1){x.fillStyle='#3b2a1e';x.fillRect(X+80,46,44,72);x.fillStyle='#d8c08a';x.fillRect(X+116,82,4,4)}x.strokeStyle='#4a4038';x.lineWidth=4;x.strokeRect(X,46,k===1?70:130,72)}
     for(var s=0;s<16;s++){x.fillStyle=s%2?'#efe6d2':awn;x.fillRect(s*32,22,32,20)}x.fillStyle='rgba(0,0,0,.25)';x.fillRect(0,42,w,4);
     x.fillStyle='#221d18';x.fillRect(150,0,212,22);x.fillStyle='#f2e3b8';x.font='700 18px Arial, sans-serif';x.textAlign='center';x.fillText(name,256,17)},1,1)}
   var AWN=['#a8322b','#2f5d8a','#2f6b45','#b8742a','#6b3a6b','#3a3a3a'];
-  var shopMats=SIGNS.map(function(n,k){return new T.MeshStandardMaterial({map:shopTex(n,AWN[k%AWN.length]),roughness:.8})});
+  var shopMats=SIGNS.map(function(n,k){var mp=shopTex(n,AWN[k%AWN.length],k);return new T.MeshStandardMaterial({map:mp,roughness:.8,emissive:0xffffff,emissiveMap:SHE[k],emissiveIntensity:1.3})});
   // ---- city ----
   var BX=36,BZ=26,RD=10,PX=BX+RD,PZ=BZ+RD;
   var ground=new T.Mesh(new T.PlaneGeometry(2000,2000),new T.MeshStandardMaterial({map:asphalt,roughness:.95}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;S.add(ground);
@@ -1091,7 +1102,7 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
   }
   var m4=new T.Matrix4(),col=new T.Color();
   ['brick','stone','glass','white'].forEach(function(kind){var list=bl.filter(function(b){return b[5]===kind});if(!list.length)return;
-    var mat=new T.MeshStandardMaterial({map:facade(kind),roughness:kind==='glass'?.25:.85,metalness:kind==='glass'?.35:0});
+    var mat=new T.MeshStandardMaterial({map:facade(kind),roughness:kind==='glass'?.25:.85,metalness:kind==='glass'?.35:0,emissive:0xffffff,emissiveMap:EMI[kind],emissiveIntensity:1.25});
     var im=new T.InstancedMesh(new T.BoxGeometry(1,1,1),mat,list.length);im.castShadow=true;im.receiveShadow=true;
     var rf=new T.InstancedMesh(new T.BoxGeometry(1,1,1),M(0x6e6b66,.9),list.length);rf.castShadow=true;rf.receiveShadow=true;
     var TINT=[[.98,.86,.70],[.95,.80,.74],[.86,.90,.80],[.99,.93,.80],[.93,.88,.84],[.88,.84,.90]];
@@ -1144,10 +1155,22 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
   // streetlights
   var sl=[];for(var i=I0;i<I1;i++)for(var j=J0;j<J1;j++)if((i+j)%2===0)sl.push([i*PX+RD/2+1,j*PZ+RD/2+1]);
   var pole=new T.InstancedMesh(new T.CylinderGeometry(.12,.16,7,6),M(0x2b2e31,.5,.6),sl.length),lamp=new T.InstancedMesh(new T.BoxGeometry(.5,.25,1.6),M(0x3a3d40,.4,.5),sl.length);pole.castShadow=true;
+  var bulbM=new T.MeshBasicMaterial({color:0xffffff,toneMapped:false});bulbM.color.setRGB(4,3.4,2.6);bulbM.__lin=1;var bulb=new T.InstancedMesh(new T.BoxGeometry(.42,.06,1.4),bulbM,sl.length);
+  function radTex(stops){var c=document.createElement('canvas');c.width=c.height=128;var x=c.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);stops.forEach(function(s){g.addColorStop(s[0],s[1])});x.fillStyle=g;x.fillRect(0,0,128,128);return new T.CanvasTexture(c)}
+  var poolT=radTex([[0,'rgba(255,214,160,1)'],[.35,'rgba(255,190,120,.45)'],[1,'rgba(255,170,90,0)']]);
+  var pool=new T.InstancedMesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({map:poolT,transparent:true,opacity:.34,blending:T.AdditiveBlending,depthWrite:false,toneMapped:false,fog:true}),sl.length);
+  var haloT=radTex([[0,'rgba(255,225,180,1)'],[.25,'rgba(255,200,140,.35)'],[1,'rgba(255,180,120,0)']]);
+  sl.forEach(function(s,n){m4.makeTranslation(s[0]-.5,6.86,s[1]-.5);bulb.setMatrixAt(n,m4);m4.makeRotationX(-Math.PI/2);m4.scale(new T.Vector3(15,15,1));m4.setPosition(s[0]-.8,.07,s[1]-.8);pool.setMatrixAt(n,m4);
+    var hs=new T.Sprite(new T.SpriteMaterial({map:haloT,transparent:true,opacity:.55,blending:T.AdditiveBlending,depthWrite:false,toneMapped:false}));hs.scale.set(3.2,3.2,1);hs.position.set(s[0]-.5,6.7,s[1]-.5);S.add(hs)});
+  S.add(bulb);S.add(pool);
   sl.forEach(function(s,n){m4.makeTranslation(s[0],3.5,s[1]);pole.setMatrixAt(n,m4);m4.makeTranslation(s[0]-.5,7,s[1]-.5);lamp.setMatrixAt(n,m4);boxes.push([s[0]-.2,s[1]-.2,s[0]+.2,s[1]+.2])});S.add(pole);S.add(lamp);
   // cars
   var paints=[0xf2f2f0,0x1c1d20,0xa8adb3,0x6d1f24,0x27405e,0x4b4f55,0xd9d4c7,0x3b2a55];
-  var glass=new T.MeshStandardMaterial({color:0x1b2530,roughness:.08,metalness:.9}),tire=M(0x151515,.9),chrome=M(0xcfd3d6,.25,.9),tail=new T.MeshBasicMaterial({color:0xb3261e}),head=new T.MeshBasicMaterial({color:0xfff6dd});
+  var glass=new T.MeshStandardMaterial({color:0x1b2530,roughness:.08,metalness:.9}),tire=M(0x151515,.9),chrome=M(0xcfd3d6,.25,.9),tail=new T.MeshBasicMaterial({color:0xffffff,toneMapped:false}),head=new T.MeshBasicMaterial({color:0xffffff,toneMapped:false});tail.color.setRGB(3.2,.18,.12);head.color.setRGB(3.6,3.4,3.0);tail.__lin=head.__lin=1;
+  function gTex(stops,w,h){var c=document.createElement('canvas');c.width=w||128;c.height=h||128;var x=c.getContext('2d'),g=x.createRadialGradient(c.width/2,c.height/2,0,c.width/2,c.height/2,c.width/2);stops.forEach(function(s){g.addColorStop(s[0],s[1])});x.fillStyle=g;x.fillRect(0,0,c.width,c.height);return new T.CanvasTexture(c)}
+  var glowT=gTex([[0,'rgba(255,255,255,1)'],[.45,'rgba(255,255,255,.55)'],[1,'rgba(255,255,255,0)']]);
+  var beamT=(function(){var c=document.createElement('canvas');c.width=64;c.height=256;var x=c.getContext('2d'),g=x.createLinearGradient(0,256,0,0);g.addColorStop(0,'rgba(255,240,215,.9)');g.addColorStop(1,'rgba(255,240,215,0)');x.fillStyle=g;x.beginPath();x.moveTo(22,256);x.lineTo(42,256);x.lineTo(64,0);x.lineTo(0,0);x.closePath();x.fill();var t=new T.CanvasTexture(c);return t})();
+  var UG=[0xb03cff,0xff4fa3,0x8a4dff,0x38d6ff];
   function makeCar(c){var cm=new T.Group(),paint=new T.MeshStandardMaterial({color:paints[c%paints.length],roughness:.32,metalness:.55});
     var body=new T.Mesh(new T.BoxGeometry(1.82,.62,4.6),paint);body.position.y=.56;cm.add(body);
     var cab=new T.Mesh(new T.BoxGeometry(1.62,.5,2.3),glass);cab.position.set(0,1.12,-.15);cm.add(cab);
@@ -1155,8 +1178,13 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
     [[-1,1.5],[1,1.5],[-1,-1.5],[1,-1.5]].forEach(function(p){var wh=new T.Mesh(new T.CylinderGeometry(.34,.34,.26,14),tire);wh.rotation.z=Math.PI/2;wh.position.set(p[0]*.86,.34,p[1]);cm.add(wh);
       var hb=new T.Mesh(new T.CylinderGeometry(.18,.18,.28,10),chrome);hb.rotation.z=Math.PI/2;hb.position.copy(wh.position);cm.add(hb)});
     [-.7,.7].forEach(function(x){var t=new T.Mesh(new T.BoxGeometry(.45,.16,.05),tail);t.position.set(x,.7,-2.31);cm.add(t);var hl=new T.Mesh(new T.BoxGeometry(.45,.16,.05),head);hl.position.set(x,.7,2.31);cm.add(hl)});
-    cm.traverse(function(o){o.castShadow=true});return cm}
-  parked.forEach(function(p,c){var cm=makeCar(c+3);cm.position.set(p[0],0,p[1]);cm.rotation.y=p[2];S.add(cm);boxes.push([p[0]-2.35,p[1]-.95,p[0]+2.35,p[1]+.95])});
+    cm.traverse(function(o){o.castShadow=true});
+    if(c%5===1||c%5===3){var gm_=new T.MeshBasicMaterial({map:glowT,color:UG[c%UG.length],transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false,toneMapped:false});gm_.__lin=1;var ug=new T.Mesh(new T.PlaneGeometry(4.4,7.4),gm_);ug.rotation.x=-Math.PI/2;ug.position.y=.06;cm.add(ug);
+      var ugb=new T.Mesh(new T.BoxGeometry(1.7,.04,4.3),new T.MeshBasicMaterial({color:UG[c%UG.length],toneMapped:false}));ugb.position.y=.22;cm.add(ugb)}
+    var bm=new T.MeshBasicMaterial({map:beamT,transparent:true,opacity:.28,blending:T.AdditiveBlending,depthWrite:false,toneMapped:false});bm.__lin=1;var beam_=new T.Mesh(new T.PlaneGeometry(3.6,12),bm);beam_.rotation.x=-Math.PI/2;beam_.position.set(0,.07,8.3);cm.add(beam_);cm.userData.beam=beam_;
+    var tg=new T.Mesh(new T.PlaneGeometry(2.6,1.6),new T.MeshBasicMaterial({map:glowT,color:0xff2a1a,transparent:true,opacity:.5,blending:T.AdditiveBlending,depthWrite:false,toneMapped:false}));tg.rotation.x=-Math.PI/2;tg.position.set(0,.065,-2.9);cm.add(tg);
+    return cm}
+  parked.forEach(function(p,c){var cm=makeCar(c+3);if(cm.userData.beam)cm.userData.beam.visible=false;cm.position.set(p[0],0,p[1]);cm.rotation.y=p[2];S.add(cm);boxes.push([p[0]-2.35,p[1]-.95,p[0]+2.35,p[1]+.95])});
   var cars=[];for(var c=0;c<28;c++){var cm=makeCar(c);
     var av=Math.random()<.5,lane=av?(I0+1+Math.floor(Math.random()*(I1-I0-1))):(J0+1+Math.floor(Math.random()*(J1-J0-1)));
     cm.userData={av:av,lane:lane,p:Math.random()*600-300,v:(8+Math.random()*8)*(Math.random()<.5?1:-1)};S.add(cm);cars.push(cm)}
@@ -1227,6 +1255,59 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
   S.traverse(function(o){var ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[];ms.forEach(function(m){if(m.color&&!m.__lin&&!m.isShaderMaterial){m.color.convertSRGBToLinear();m.__lin=1}})});
   // ---- loop ----
   var camDist=3.4,camPos=new T.Vector3(),look=new T.Vector3(),W=0,H=0,lt=0,ui={obj:$('#gObj'),hint:$('#gHint'),cnt:$('#gCnt')};
+  // ---- ALX: original blocky companion bot that floats beside the player; talk to it to open the assistant ----
+  var BOT=(function(){
+    var g=new T.Group(),inner=new T.Group();g.add(inner);
+    function bx(w,h,d,m,x,y,z){var o=new T.Mesh(new T.BoxGeometry(w,h,d),m);o.position.set(x||0,y||0,z||0);o.castShadow=true;inner.add(o);return o}
+    var sc=document.createElement('canvas');sc.width=32;sc.height=20;var sx=sc.getContext('2d'),st=new T.CanvasTexture(sc);st.magFilter=T.NearestFilter;st.encoding=T.sRGBEncoding;
+    var mood='idle',blink=0;
+    function drawFace(ts){sx.fillStyle='#0c0f16';sx.fillRect(0,0,32,20);sx.fillStyle='#FF4FA3';var bl=(ts%3600)<140;
+      if(mood==='talk'){sx.fillRect(7,7,2,1);sx.fillRect(9,6,2,1);sx.fillRect(11,7,2,1);sx.fillRect(19,7,2,1);sx.fillRect(21,6,2,1);sx.fillRect(23,7,2,1);var o=(Math.floor(ts/140)%3);sx.fillRect(13,12+(o?0:1),6,o+1)}
+      else{if(bl){sx.fillRect(7,9,6,1);sx.fillRect(19,9,6,1)}else{sx.fillRect(8,6,4,5);sx.fillRect(20,6,4,5);sx.fillStyle='#ffd3e8';sx.fillRect(8,6,1,1);sx.fillRect(20,6,1,1);sx.fillStyle='#FF4FA3'}
+        sx.fillRect(13,14,6,1);sx.fillRect(12,13,1,1);sx.fillRect(19,13,1,1)}
+      st.needsUpdate=true}
+    var mW=M(0xdedad2,.5),mG=M(0x2a2d35,.5,.2),mP=new T.MeshStandardMaterial({color:0xFF4FA3,emissive:0xFF4FA3,emissiveIntensity:1.6,roughness:.4}),
+        mScr=new T.MeshBasicMaterial({map:st,toneMapped:false});
+    // head with screen face
+    bx(.62,.46,.5,mW,0,.62,0);bx(.66,.06,.54,mG,0,.86,0);
+    var scr=new T.Mesh(new T.PlaneGeometry(.5,.31),mScr);scr.position.set(0,.62,.262);inner.add(scr);
+    bx(.56,.38,.02,mG,0,.62,.245);
+    [-1,1].forEach(function(s){bx(.06,.2,.2,mG,s*.34,.62,0);bx(.04,.08,.08,mP,s*.375,.62,0)});
+    // antenna
+    bx(.04,.18,.04,mG,0,.97,0);var tip=bx(.09,.09,.09,mP,0,1.09,0);
+    // body + little arms
+    bx(.38,.3,.32,mW,0,.24,0);bx(.4,.06,.34,mG,0,.36,0);bx(.12,.08,.02,mP,0,.24,.165);
+    var arms=[-1,1].map(function(s){var a=new T.Group();a.position.set(s*.25,.32,0);inner.add(a);var o=new T.Mesh(new T.BoxGeometry(.08,.22,.1),mW);o.position.y=-.1;o.castShadow=true;a.add(o);return a});
+    // hover jet
+    bx(.26,.06,.22,mG,0,.06,0);var jet=new T.Mesh(new T.CylinderGeometry(.09,.02,.22,10),new T.MeshBasicMaterial({color:0xff8cc4,transparent:true,opacity:.55,toneMapped:false}));jet.position.y=-.08;inner.add(jet);
+    var sh=new T.Mesh(new T.CircleGeometry(.28,20),new T.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.22,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.y=.02;g.add(sh);
+    var bp=new T.Vector3(pos.x+1.4,0,pos.z+1),byaw=face,idleT=0,tip_=$('#gBotTip'),v3=new T.Vector3(),HOV=1.05;
+    g.position.copy(bp);S.add(g);drawFace(0);
+    var ray=new T.Raycaster(),hitList=[];inner.traverse(function(o){if(o.isMesh)hitList.push(o)});
+    function tick(dt,ts){
+      // follow: sit off the player's shoulder, a little behind
+      var fx=pos.x-C.position.x,fz=pos.z-C.position.z,fl=Math.hypot(fx,fz)||1;fx/=fl;fz/=fl;var sx_=-fz,sz_=fx;
+      var tx=pos.x+sx_*1.5+fx*.5,tz=pos.z+sz_*1.5+fz*.5;if(blocked(tx,tz)){tx=pos.x-sx_*1.5+fx*.5;tz=pos.z-sz_*1.5+fz*.5;if(blocked(tx,tz)){tx=pos.x+fx*1.6;tz=pos.z+fz*1.6}}
+      var k=1-Math.exp(-dt*(vel>5?5:3));bp.x+=(tx-bp.x)*k;bp.z+=(tz-bp.z)*k;
+      var chat=!$('#gChat').hidden;mood=chat?'talk':'idle';
+      var mv=Math.hypot(tx-bp.x,tz-bp.z),want=(mv>.35&&!chat)?Math.atan2(tx-bp.x,tz-bp.z):Math.atan2(C.position.x-bp.x,C.position.z-bp.z);
+      var d=((want-byaw+Math.PI*3)%(Math.PI*2))-Math.PI;byaw+=d*Math.min(1,dt*5);
+      g.position.set(bp.x,HOV+Math.sin(ts/520)*.06,bp.z);g.rotation.y=byaw;inner.rotation.x=Math.min(.35,mv*.25);inner.rotation.z=Math.sin(ts/900)*.04;
+      sh.position.y=.02-g.position.y;sh.material.opacity=.22-Math.sin(ts/520)*.04;
+      arms[0].rotation.z=chat?-.9-Math.sin(ts/160)*.35:-.12+Math.sin(ts/700)*.06;arms[1].rotation.z=.12-Math.sin(ts/700)*.06;
+      jet.scale.y=.85+Math.sin(ts/60)*.15;tip.material.emissiveIntensity=1.2+Math.sin(ts/300)*.6;
+      if(((ts/90)|0)!==blink){blink=(ts/90)|0;drawFace(ts)}
+      // speech bubble when the player stops for a moment
+      idleT=vel<.3?idleT+dt:0;
+      var show=!chat&&idleT>1.2&&$('#gStart').hidden&&!cine&&$('#gMenu').hidden&&!near;
+      if(tip_){if(show){v3.set(bp.x,g.position.y+1.25,bp.z).project(C);var r=cv.getBoundingClientRect();
+          if(v3.z<1){tip_.style.transform='translate('+((v3.x*.5+.5)*r.width)+'px,'+((-v3.y*.5+.5)*r.height)+'px) translate(-50%,-100%)';tip_.hidden=false}else tip_.hidden=true}else tip_.hidden=true}
+    }
+    function hit(cx,cy){var r=cv.getBoundingClientRect();ray.setFromCamera({x:(cx-r.left)/r.width*2-1,y:-(cy-r.top)/r.height*2+1},C);return ray.intersectObjects(hitList,false).length>0}
+    return{tick:tick,hit:hit}
+  })();
+  (function(){var d0=null;cv.addEventListener('pointerdown',function(e){d0={x:e.clientX,y:e.clientY}});
+    cv.addEventListener('pointerup',function(e){if(d0&&Math.abs(e.clientX-d0.x)+Math.abs(e.clientY-d0.y)<6&&BOT.hit(e.clientX,e.clientY)&&window.__gChat)window.__gChat.open();d0=null})})();
   function fit(){var w=cv.clientWidth,h=cv.clientHeight;if(w===W&&h===H)return;W=w;H=h;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix();if(!PP&&!PP_tried){PP_tried=true;setupPost()}if(PP){PP.cp.setSize(w,h);PP.grade.uniforms.res.value.set(w,h)}}var PP_tried=false;
   function nextStop(){for(var k=0;k<marks.length;k++)if(!marks[k].done)return marks[k];return null}
   function loop(ts){requestAnimationFrame(loop);if(!running)return;var dt=lt?Math.min(.05,(ts-lt)/1000):.016;lt=ts;fit();
@@ -1238,7 +1319,7 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
     if(vel>.05){var nx=pos.x+Math.sin(face)*vel*dt,nz=pos.z+Math.cos(face)*vel*dt;if(!blocked(nx,pos.z))pos.x=nx;if(!blocked(pos.x,nz))pos.z=nz}
     // when moving, camera eases behind the player
     if(vel>.5&&!drag){var behind=face+Math.PI,dy=((behind-camYaw+Math.PI*3)%(Math.PI*2))-Math.PI;camYaw+=dy*Math.min(1,dt*1.2)}
-    P.root.position.copy(pos);sun.position.copy(pos).add(SUN);sun.target.position.copy(pos);sky.position.copy(C.position);P.root.rotation.y=face;psh.position.x=pos.x;psh.position.z=pos.z;
+    P.root.position.copy(pos);sun.position.copy(pos).add(SUN);sun.target.position.copy(pos);sky.position.copy(C.position);P.root.rotation.y=face;BOT.tick(dt,ts);psh.position.x=pos.x;psh.position.z=pos.z;
     var rr=vel/4,amp_=.55+.3*Math.max(0,Math.min(1,rr-1)),stride=4*.82*Math.sin(amp_);ph+=dt*vel*Math.PI*2/Math.max(1,stride);P.pose(ph,rr,ts,near&&vel<.3);
     var rx=Math.cos(camYaw)*.55,rz=-Math.sin(camYaw)*.55,cx=pos.x+rx+Math.sin(camYaw)*Math.cos(camPitch)*camDist,cz=pos.z+rz+Math.cos(camYaw)*Math.cos(camPitch)*camDist,cy=1.45+Math.sin(camPitch)*camDist;
     camPos.set(cx,cy,cz);look.set(pos.x+rx-Math.sin(camYaw)*2,1.4,pos.z+rz-Math.cos(camYaw)*2);
@@ -1261,7 +1342,7 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
     if(nx2){var tx=nx2.g.position.x-pos.x,tz=nx2.g.position.z-pos.z,dd=Math.round(Math.hypot(tx,tz)),brg=Math.atan2(tx,tz);gpsA.visible=!cine&&dd>5;gpsA.position.x=pos.x+Math.sin(brg)*1.3;gpsA.position.z=pos.z+Math.cos(brg)*1.3;gpsA.rotation.y=brg+Math.PI;gpsA.material.opacity=.65+Math.sin(ts/220)*.25;
       var q0=new T.Vector3(pos.x,0,pos.z).project(C),q1=new T.Vector3(pos.x+Math.sin(brg)*3,0,pos.z+Math.cos(brg)*3).project(C),rel=-Math.atan2(q1.x-q0.x,q1.y-q0.y)*180/Math.PI;ui.obj.innerHTML='<i class="g-dir" style="transform:rotate('+(-rel).toFixed(1)+'deg)"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\"><path d=\"M10 2 L17 17 L10 13 L3 17 Z\" fill=\"#fff\"/></svg></i><div><small>'+((window.__gMenu&&window.__gMenu.target())?'Waypoint':'Next stop')+'</small><b>'+(nx2.s[0]<7?'0'+nx2.s[0]+' · ':'')+nx2.s[1]+'</b><span>'+dd+' m · follow the pink arrow</span></div>';window.__tgt=nx2}
     else{gpsA.visible=false;window.__tgt=null;ui.obj.innerHTML='<small>Route complete</small><b>All stops reached</b><span>Press M for the map, packages and contact</span>';}
-    var hy_=Math.max(0,C.position.y-4);S.fog.near=60+hy_*2.2;S.fog.far=300+hy_*5;drawMap();if(PP){PP.grade.uniforms.time.value=ts/1000;if(PP.bokeh){PP.bokeh.enabled=!!cine;if(cine)PP.bokeh.uniforms.focus.value=C.position.distanceTo(P.root.position)}PP.cp.render()}else R.render(S,C)}
+    var hy_=Math.max(0,C.position.y-4);S.fog.near=30+hy_*2.2;S.fog.far=240+hy_*5;drawMap();if(PP){PP.grade.uniforms.time.value=ts/1000;if(PP.bokeh){PP.bokeh.enabled=!!cine;if(cine)PP.bokeh.uniforms.focus.value=C.position.distanceTo(P.root.position)}PP.cp.render()}else R.render(S,C)}
   // ---- water around the island (rivers) ----
   var LX0=I0*PX-RD,LX1=I1*PX+RD,LZ0=J0*PZ-RD,LZ1=J1*PZ+RD;
   ground.geometry.dispose();ground.geometry=new T.PlaneGeometry(LX1-LX0,LZ1-LZ0);ground.position.set((LX0+LX1)/2,0,(LZ0+LZ1)/2);
@@ -1401,7 +1482,7 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
       controls:function(){return{t:'<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · <kbd>Shift</kbd> run · drag to look · <kbd>E</kbd> open a stop · <kbd>M</kbd> map & mission select. On phones, use the joystick and the pink button. Or just ask me to take you somewhere.',chips:['Take me to a stop']}},
       timeline:function(){return{t:'Timelines depend on scope, so Alex confirms one after a quick conversation about the project. Monthly packages start as soon as onboarding is done.',acts:[['mail','Ask about timing','Timeline question']]}},
       bot:function(){return{t:'I\'m an automated assistant — I answer from what\'s in this portfolio. For anything I can\'t answer, email Alex and he\'ll reply himself.',acts:[['mail','Email Alex','Question from the portfolio']]}},
-      hello:function(){return{t:'Hi! I\'m Alex\'s assistant. Ask me about services, prices or the Diamonds Flash results — or say <i>"take me to the website stop"</i> and I\'ll set a waypoint.',chips:['What do you do?','Packages & prices','Diamonds Flash results','Take me to a stop','Contact']}},
+      hello:function(){return{t:'Hi! I\'m ALX, Alex\'s assistant. Ask me about services, prices or the Diamonds Flash results — or say <i>"take me to the website stop"</i> and I\'ll set a waypoint.',chips:['What do you do?','Packages & prices','Diamonds Flash results','Take me to a stop','Contact']}},
       thanks:function(){return{t:'Anytime. Enjoy the walk!',chips:['Take me to a stop','Contact']}},
       miss:function(){return{t:'I don\'t have an answer for that yet. Alex can help directly:',acts:[['mail','Email Alex','Question from the portfolio']],chips:['What do you do?','Packages & prices','Contact']}}
     };
@@ -1440,7 +1521,8 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
     form.addEventListener('submit',function(e){e.preventDefault();send(inp.value)});
     inp.addEventListener('keydown',function(e){e.stopPropagation();if(e.key==='Escape'){e.preventDefault();close();cv.focus()}});
     inp.addEventListener('keyup',function(e){e.stopPropagation()});
-    window.addEventListener('keydown',function(e){if(!running||typing()||document.querySelector('dialog[open]')||!$('#gMenu').hidden)return;if((e.key==='c'||e.key==='C')&&!e.metaKey&&!e.ctrlKey){e.preventDefault();box.hidden?open():close()}});
+    window.addEventListener('keydown',function(e){if(!running||typing()||document.querySelector('dialog[open]')||!$('#gMenu').hidden)return;if(/^[cCtT]$/.test(e.key)&&!e.metaKey&&!e.ctrlKey){e.preventDefault();box.hidden?open():close()}});
+    var bt_=$('#gBotTip');if(bt_)bt_.addEventListener('click',open);
     window.__gChat={open:open,close:close,ask:send};
   })();
   window.__gMenu={open:openMenu,target:function(){return waypoint&&!waypoint.done?waypoint:null},clearWp:function(){waypoint=null}};
