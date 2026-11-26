@@ -533,6 +533,19 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
 .su-orders>div{display:flex;justify-content:space-between;font-weight:700;color:#9e2240}
 #suOrders{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px}
 #suOrders li{display:flex;justify-content:space-between;gap:10px}#suOrders li span{color:#806a60}#suOrders li.done span,#suOrders li.back span{color:#3f7a4c}#suOrders li.empty{color:#806a60}
+.su-acts{flex:none;display:flex;gap:8px;margin:10px 16px 16px}.su-acts button{flex:1;margin:0!important}
+.su-ck{padding:12px;border:2px solid #9e2240;border-radius:14px;background:#fff;color:#9e2240;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer}.su-ck:disabled{opacity:.4;cursor:default}
+.su-eat{flex:none;margin-left:auto;padding:4px 12px;border:none;border-radius:99px;background:#9e2240;color:#fff;font:700 12px inherit;font-family:inherit;cursor:pointer}
+#suOrders li{align-items:center}#suOrders li b{flex:1}
+.su-check{position:absolute;inset:0;z-index:2;background:#fbf3e7;padding:24px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}.su-check[hidden]{display:none}
+.su-check .ck-h{margin:0 0 4px;text-align:center;font-size:22px;font-weight:700;color:#9e2240}.su-check .ck-note{margin:0;text-align:center;color:#b46a7c;font-size:13px}
+.su-check ul{list-style:none;margin:6px 0;padding:10px 0;border-top:2px dashed #efcdbd;border-bottom:2px dashed #efcdbd;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.su-check li,.ck-row,.ck-tip{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px}.ck-row.tot{font-size:19px;font-weight:700;color:#9e2240;margin-top:4px}
+.ck-tip span{flex:1}.ck-tip button{padding:5px 10px;border-radius:99px;border:2px solid #f3b6c4;background:#fff;color:#5b4038;font:700 12px inherit;font-family:inherit;cursor:pointer}.ck-tip button.on{background:#9e2240;border-color:#9e2240;color:#fff}
+.ck-pay{margin-top:10px;padding:14px;border:none;border-radius:14px;background:#7e1a2d;color:#fff;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer}
+.ck-back{padding:10px;border:none;background:none;color:#7d655b;font-family:inherit;font-size:13px;cursor:pointer;text-decoration:underline}.ck-fine{margin:0;text-align:center;font-size:11px;color:#9a857b}
+.su-toast{position:absolute;left:50%;top:22%;transform:translateX(-50%);z-index:9;padding:12px 22px;border-radius:99px;background:rgba(251,243,231,.96);color:#9e2240;font:700 18px "Zen Maru Gothic",sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35);pointer-events:none}.su-toast[hidden]{display:none}
+#game.sushi .su-toast{left:calc((100% - 404px)/2)}@media (max-width:760px){#game.sushi .su-toast{left:50%;top:12%}}
 .su-leave{flex:none;margin:10px 16px 16px;padding:12px;border:none;border-radius:14px;background:#7e1a2d;color:#fff;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer}
 #game.sushi .g-keys,#game.sushi #gMap,#game.sushi .g-hint,#game.sushi #gJoy,#game.sushi .g-bottip{visibility:hidden}
 @media (max-width:760px){.g-sushi{left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:62vh}}
@@ -659,8 +672,10 @@ html.in-game body>*:not(#game):not(#boot):not(script):not(style):not(dialog){vis
     <header><small>いらっしゃいませ · welcome in</small><b id="suName">Komorebi Sushi</b><span>Counter seat · order whatever you like</span></header>
     <ul id="suMenu"></ul>
     <div class="su-orders"><div><span>Your order</span><span id="suTotal"></span></div><ol id="suOrders"></ol></div>
-    <button id="suLeave" class="su-leave" type="button">Leave the counter · Esc</button>
+    <div class="su-acts"><button id="suCheckBtn" class="su-ck" type="button" disabled>Ask for the check · お会計</button><button id="suLeave" class="su-leave" type="button">Leave · Esc</button></div>
+    <div id="suCheck" class="su-check" hidden role="dialog" aria-label="Your check"></div>
   </section>
+  <div id="suToast" class="su-toast" hidden role="status"></div>
   <button id="gBotTip" class="g-bottip" type="button" hidden><b>ALX</b> Hi! Ask me anything <kbd>T</kbd></button>
   <button id="gChatBtn" class="g-chatbtn new" type="button" aria-expanded="false" aria-controls="gChat"><i></i><span>Ask ALX</span></button>
   <section id="gChat" class="g-chat" hidden aria-label="Chat with ALX, the cchat studio assistant">
@@ -1302,13 +1317,20 @@ html.in-game body>*:not(#game):not(#boot):not(script):not(style):not(dialog){vis
     function bx(w,h,d,c,x,y,z,par){var m=new T.Mesh(new T.BoxGeometry(w,h,d),c.isMaterial?c:M(c,.8));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;(par||g).add(m);return m}
     var cream=M(0xe3cdb2,.9),wood=M(0xb98a5e,.75),hinoki=M(0xe9d2a8,.6),roof=M(0x6f7ea6,.7),pink=0xf3b6c4;
     bx(12,.12,16,M(0xd9b98f,.8),6,.12,8);bx(.3,5.2,16,cream,12,2.6,8);bx(12,5.2,.3,cream,6,2.6,0);bx(12,5.2,.3,cream,6,2.6,16);
-    bx(.4,5.2,2.2,wood,.2,2.6,1.1);bx(.4,5.2,2.2,wood,.2,2.6,14.9);bx(.4,1.2,16,wood,.2,4.6,8);bx(12.6,.25,16.6,M(0x9c7350,.8),6,5.3,8);
+    bx(.4,5.2,2.2,wood,.2,2.6,1.1);bx(.4,5.2,2.2,wood,.2,2.6,14.9);bx(.4,1.2,16,wood,.2,4.6,8);
+    var glass=new T.MeshStandardMaterial({color:0xffe3c2,emissive:0xffb877,emissiveIntensity:.55,transparent:true,opacity:.55,roughness:.15});
+    [4,12].forEach(function(z){bx(.3,1.1,3.6,cream,.15,.55,z);bx(.3,1,3.6,cream,.15,3.5,z);bx(.06,1.9,3.6,glass,.1,2.05,z);bx(.12,.08,3.6,wood,-.02,1.12,z);bx(.12,.08,3.6,wood,-.02,2.98,z);bx(.12,1.9,.08,wood,-.02,2.05,z)});
+    bx(.4,4,.3,wood,.2,2,5.95);bx(.4,4,.3,wood,.2,2,10.05);bx(.4,.8,4.4,wood,.2,3.6,8);bx(.6,.12,4.4,wood,.1,.06,8);
+    var paper=new T.MeshStandardMaterial({color:0xfff4e2,emissive:0xffcf96,emissiveIntensity:.45,roughness:.9}),doors=[];
+    [6.95,9.05].forEach(function(z){var d=new T.Group();d.position.set(-.14,0,z);g.add(d);bx(.04,3,1.95,paper,0,1.6,0,d);
+      [[.08,.1,2.1,0,.1,0],[.08,.1,2.1,0,3.1,0],[.08,3.1,.1,0,1.6,-1],[.08,3.1,.1,0,1.6,1],[.06,.05,2,0,.9,0],[.06,.05,2,0,1.6,0],[.06,.05,2,0,2.3,0],[.06,3,.05,0,1.6,-.33],[.06,3,.05,0,1.6,.33]].forEach(function(q){bx(q[0],q[1],q[2],wood,q[3]-.03,q[4],q[5],d)});
+      bx(.1,.5,.06,0x4a3324,-.06,1.55,z<8?.82:-.82,d);doors.push(d)});bx(12.6,.25,16.6,M(0x9c7350,.8),6,5.3,8);
     [-1,1].forEach(function(s){var r=bx(7.2,.25,17.4,roof,6+s*3.1,6.4,8);r.rotation.z=s*-.42});bx(.5,.4,17.4,M(0x5b6a90,.7),6,7.75,8);
     // noren curtain
     var nc=document.createElement('canvas');nc.width=256;nc.height=128;var nx=nc.getContext('2d');nx.fillStyle='#f3b6c4';nx.fillRect(0,0,256,128);nx.fillStyle='#fff6f0';nx.beginPath();nx.arc(128,58,30,0,6.3);nx.fill();nx.fillStyle='#9e2240';nx.font='700 34px sans-serif';nx.textAlign='center';nx.fillText('すし',128,70);
-    var nt=new T.CanvasTexture(nc);nt.encoding=T.sRGBEncoding;for(var k=0;k<4;k++){var s=new T.Mesh(new T.PlaneGeometry(2.4,1.25),new T.MeshStandardMaterial({map:nt,side:T.DoubleSide,roughness:.9,transparent:true}));
-      nt.repeat&&0;s.position.set(-.05,3.35,5.3+k*2.47);s.rotation.y=-Math.PI/2;var uv=s.geometry.attributes.uv;for(var u=0;u<uv.count;u++)uv.setX(u,(uv.getX(u)+k)/4);g.add(s)}
-    var stx=signTex([[name,'700 52px Georgia, serif'],[sub,'500 24px Arial, sans-serif']],'#fbf1e4','#9e2240',512,150),sb=new T.Mesh(new T.PlaneGeometry(4.2,1.22),new T.MeshStandardMaterial({map:stx,roughness:.8,emissive:0xffffff,emissiveMap:stx,emissiveIntensity:.35}));sb.position.set(-.25,4.7,8);sb.rotation.y=-Math.PI/2;g.add(sb);
+    var nt=new T.CanvasTexture(nc);nt.encoding=T.sRGBEncoding;for(var k=0;k<2;k++){var s=new T.Mesh(new T.PlaneGeometry(1.95,1.1),new T.MeshStandardMaterial({map:nt,side:T.DoubleSide,roughness:.9,transparent:true}));
+      nt.repeat&&0;s.position.set(-.26,3.45,7.03+k*1.94);s.rotation.y=-Math.PI/2;var uv=s.geometry.attributes.uv;for(var u=0;u<uv.count;u++)uv.setX(u,(uv.getX(u)+k)/2);g.add(s)}
+    var stx=signTex([[name,'700 52px Georgia, serif'],[sub,'500 24px Arial, sans-serif']],'#fbf1e4','#9e2240',512,150),sb=new T.Mesh(new T.PlaneGeometry(4.2,1.22),new T.MeshStandardMaterial({map:stx,roughness:.8,emissive:0xffffff,emissiveMap:stx,emissiveIntensity:.35}));sb.position.set(-.25,4.56,8);sb.rotation.y=-Math.PI/2;g.add(sb);
     // counter, stools, fish case, shelf
     bx(.9,1.05,10.4,hinoki,6.1,.55,8);bx(1.2,.08,10.8,M(0xf1dcb6,.45),6,1.1,8);var seats=[];for(var k=0;k<5;k++){var z=3.9+k*2.05;bx(.08,.7,.08,M(0x3a3a40,.4,.6),4.7,.4,z);var top=new T.Mesh(new T.CylinderGeometry(.28,.28,.08,14),M(0xf3b6c4,.7));top.position.set(4.7,.78,z);g.add(top);seats.push(z)}
     var gl=new T.Mesh(new T.BoxGeometry(.5,.35,9.6),new T.MeshStandardMaterial({color:0xcfe8f2,transparent:true,opacity:.28,roughness:.05}));gl.position.set(6.3,1.32,8);g.add(gl);
@@ -1332,47 +1354,80 @@ html.in-game body>*:not(#game):not(#boot):not(script):not(style):not(dialog){vis
     var server=makeNPC({skin:'#f0c9a8',top:pink,sleeve:0xfbe3e8,pants:0x3b4f7d,hair:0x4a2c22,bun:true,obi:0xf5c99b,apron:0xfff6ee,blush:true});server.position.set(3.2,.12,14.4);server.rotation.y=Math.PI;g.add(server);
     g.updateMatrixWorld(true);function W(x,y,z){return new T.Vector3(x,y,z).applyMatrix4(g.matrixWorld)}
     boxes.push([x0+1.2,z0+4.7,x0+14,z0+21.3]);boxes.push([x0-.6,z0+22,x0+.8,z0+24.6]);boxes.push([x0-.1,z0+3.2,x0+.9,z0+4.2]);
-    var bar={name:name,g:g,W:W,door:W(-1.4,0,8),seats:seats,chefs:chefs,server:server,srv:{home:new T.Vector3(3.2,.12,14.4)},plates:[]};SU.bars.push(bar);
+    var bar={name:name,g:g,W:W,door:W(-1.4,0,8),seats:seats,chefs:chefs,server:server,srv:{home:new T.Vector3(3.2,.12,14.4)},plates:[],doors:doors,door_o:0};SU.bars.push(bar);
     POIS.push([name,bar.door.x,bar.door.z]);return bar}
   LM.forEach(function(L){if(L[0]==='sushi0')buildSushi(L,'Komorebi Sushi','counter seats · 7th Ave');if(L[0]==='sushi1')buildSushi(L,'Sakura-zaka Sushi','counter seats · Midtown')});
-  // ---- sitting at a sushi counter + ordering ----
-  var suNear=null,suEl=$('#gSushi'),suMenu=$('#suMenu'),suOrd=$('#suOrders'),suName=$('#suName'),SU_ST={prep:'The chef is preparing it…',walk:'On its way…',serve:'Here you go!',back:'Served · enjoy',done:'Served · enjoy'};
+  // ---- sitting at a sushi counter: order, eat (first-person), pay the check ----
+  var suNear=null,suEl=$('#gSushi'),suMenu=$('#suMenu'),suOrd=$('#suOrders'),suName=$('#suName'),suChk=$('#suCheck'),suToast=$('#suToast'),TIP=.18,TAX=.08875,
+      SU_ST={queued:'Waiting for the chef…',prep:'The chef is preparing it…',walk:'On its way…',serve:'Here you go!',back:'Served',done:'Served'};
+  function money(v){return '$'+v.toFixed(2)}
   function suFind(){if(drive||SU.on)return null;for(var k=0;k<SU.bars.length;k++){var b=SU.bars[k];if(Math.hypot(b.door.x-pos.x,b.door.z-pos.z)<3.4)return b}return null}
-  function suRender(){suOrd.textContent='';if(!SU.orders.length){var li=document.createElement('li');li.className='empty';li.textContent='Nothing yet. Pick something from the menu.';suOrd.appendChild(li)}
-    SU.orders.forEach(function(o){var li=document.createElement('li');li.className=o.st;var b=document.createElement('b');b.textContent=o.item[0];var s=document.createElement('span');s.textContent=o.st==='queued'?'Waiting for the chef…':SU_ST[o.st];li.appendChild(b);li.appendChild(s);suOrd.appendChild(li)});
-    var tot=SU.orders.reduce(function(a,o){return a+o.item[2]},0);$('#suTotal').textContent=tot?'$'+tot:''}
+  function served(){return SU.orders.filter(function(o){return o.placed})}
+  function toast(t){suToast.textContent=t;suToast.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){suToast.hidden=true},1800)}
+  function suRender(){suOrd.textContent='';if(!SU.orders.length){var li=document.createElement('li');li.className='empty';li.textContent=SU.paid?'Paid — thank you! ありがとうございました':'Nothing yet. Pick something from the menu.';suOrd.appendChild(li)}
+    SU.orders.forEach(function(o){var li=document.createElement('li');li.className=o.st;var b=document.createElement('b');b.textContent=o.item[0];var s=document.createElement('span');
+      s.textContent=o.placed?(o.left>0?o.left+' left':'Finished · ごちそうさま'):SU_ST[o.st];li.appendChild(b);li.appendChild(s);
+      if(o.placed&&o.left>0){var e=document.createElement('button');e.type='button';e.className='su-eat';e.textContent=/mis|tea/.test(o.item[3])?'Sip':'Eat';e.addEventListener('click',function(){suEat(o)});li.appendChild(e)}
+      suOrd.appendChild(li)});
+    var sub=SU.orders.reduce(function(a,o){return a+o.item[2]},0);$('#suTotal').textContent=sub?money(sub):'';$('#suCheckBtn').disabled=!served().length}
   SUSHI_MENU.forEach(function(it){var li=document.createElement('li'),b=document.createElement('button');b.type='button';b.innerHTML='<span></span><small></small><em></em><i>Order</i>';
     b.querySelector('span').textContent=it[0];b.querySelector('small').textContent=it[1];b.querySelector('em').textContent='$'+it[2];
-    b.addEventListener('click',function(){if(!SU.on||SU.orders.length>=8)return;SU.orders.push({item:it,st:'queued',t:0});suRender()});li.appendChild(b);suMenu.appendChild(li)});
-  function suEnter(bar){SU.on=bar;SU.orders=[];bar.plates.forEach(function(p){bar.g.remove(p)});bar.plates=[];keys={};vel=0;suName.textContent=bar.name;suRender();suEl.hidden=false;gm.classList.add('sushi');
+    b.addEventListener('click',function(){if(!SU.on||SU.orders.length>=8)return;SU.paid=false;SU.orders.push({item:it,st:'queued',t:0});suRender()});li.appendChild(b);suMenu.appendChild(li)});
+  function showCheck(note){var lines=served(),sub=lines.reduce(function(a,o){return a+o.item[2]},0),tax=sub*TAX,tip=sub*TIP,tot=sub+tax+tip;
+    var h='<p class="ck-h">お会計 · Your check</p>'+(note?'<p class="ck-note">'+note+'</p>':'')+'<ul>';lines.forEach(function(o){h+='<li><span></span><b>'+money(o.item[2])+'</b></li>'});
+    h+='</ul><div class="ck-row"><span>Subtotal</span><b>'+money(sub)+'</b></div><div class="ck-row"><span>NYC sales tax 8.875%</span><b>'+money(tax)+'</b></div>'+
+      '<div class="ck-tip"><span>Tip</span>'+[.15,.18,.2].map(function(p){return '<button type="button" data-tip="'+p+'" class="'+(Math.abs(p-TIP)<.001?'on':'')+'">'+Math.round(p*100)+'%</button>'}).join('')+'<b>'+money(tip)+'</b></div>'+
+      '<div class="ck-row tot"><span>Total</span><b>'+money(tot)+'</b></div><button type="button" class="ck-pay">Pay '+money(tot)+'</button><button type="button" class="ck-back">Back to the menu</button><p class="ck-fine">In-game check. No real payment is taken.</p>';
+    suChk.innerHTML=h;[].forEach.call(suChk.querySelectorAll('li span'),function(sp,k){sp.textContent=lines[k].item[0]});
+    [].forEach.call(suChk.querySelectorAll('[data-tip]'),function(b){b.addEventListener('click',function(){TIP=+b.dataset.tip;showCheck(note)})});
+    suChk.querySelector('.ck-pay').addEventListener('click',function(){SU.paid=true;SU.bowT=1.6;SU.orders=[];var bar=SU.on;bar.plates.forEach(function(p){bar.g.remove(p)});bar.plates=[];suChk.hidden=true;suEl.classList.remove('checking');suRender();toast('Paid '+money(tot)+' · ありがとうございました!')});
+    suChk.querySelector('.ck-back').addEventListener('click',function(){suChk.hidden=true;suEl.classList.remove('checking')});
+    suChk.hidden=false;suEl.classList.add('checking');var pb=suChk.querySelector('.ck-pay');if(pb)pb.focus()}
+  $('#suCheckBtn').addEventListener('click',function(){if(served().length)showCheck()});
+  function suEnter(bar){suCam.copy(C.position);SU.on=bar;SU.orders=[];SU.paid=false;SU.eat=null;bar.plates.forEach(function(p){bar.g.remove(p)});bar.plates=[];keys={};vel=0;suName.textContent=bar.name;suChk.hidden=true;suEl.classList.remove('checking');suRender();suEl.hidden=false;gm.classList.add('sushi');
     var b0=suEl.querySelector('#suMenu button');setTimeout(function(){if(b0)b0.focus()},60)}
-  function suLeave(){var bar=SU.on;if(!bar)return;SU.on=null;suEl.hidden=true;gm.classList.remove('sushi');P.root.visible=true;psh.visible=true;bar.server.position.copy(bar.srv.home);bar.server.rotation.y=Math.PI;
+  function suLeave(){var bar=SU.on;if(!bar)return;if(served().length&&!SU.paid){showCheck('Please settle the check before you go.');return}
+    if(SU.eat)S.remove(SU.eat.pc);SU.on=null;SU.eat=null;suEl.hidden=true;gm.classList.remove('sushi');P.root.visible=true;psh.visible=true;bar.server.position.copy(bar.srv.home);bar.server.rotation.y=Math.PI;
     pos.x=bar.door.x-1.2;pos.z=bar.door.z;face=-Math.PI/2;camYaw=Math.PI/2;cv.focus()}
   $('#suLeave').addEventListener('click',suLeave);
-  addEventListener('keydown',function(e){if(SU.on&&e.key==='Escape'){e.preventDefault();suLeave()}});
+  addEventListener('keydown',function(e){if(SU.on&&e.key==='Escape'){e.preventDefault();if(!suChk.hidden){suChk.hidden=true;suEl.classList.remove('checking')}else suLeave()}});
   function plateFor(code){var p=new T.Group(),pm=M(0xf7f3ea,.4);var d=new T.Mesh(new T.CylinderGeometry(.2,.17,.025,20),pm);p.add(d);
-    function nig(c,x){var r=new T.Mesh(new T.BoxGeometry(.11,.045,.06),M(0xfafafa,.6));r.position.set(x,.035,0);p.add(r);var f=new T.Mesh(new T.BoxGeometry(.13,.022,.07),M(c,.45));f.position.set(x,.068,0);p.add(f)}
-    if(code==='sal')[-.06,.06].forEach(function(x){nig(0xf28a52,x)});else if(code==='tun')[-.06,.06].forEach(function(x){nig(0xc2273a,x)});else if(code==='ham')[-.06,.06].forEach(function(x){nig(0xf2d4bf,x)});
-    else if(code==='ebi')[-.06,.06].forEach(function(x){nig(0xf4a07a,x)});else if(code==='tam')[-.06,.06].forEach(function(x){nig(0xf2cf55,x)});
-    else if(code==='cal'||code==='kap'){for(var k=0;k<6;k++){var r=new T.Mesh(new T.CylinderGeometry(.035,.035,.04,10),M(code==='cal'?0xf5efe6:0x1d2b22,.6));r.position.set(-.1+(k%3)*.1,.04,-.04+Math.floor(k/3)*.08);p.add(r);
-      var c=new T.Mesh(new T.CylinderGeometry(.015,.015,.042,8),M(code==='cal'?0xf28a52:0x6fbf73,.5));c.position.copy(r.position);p.add(c)}}
-    else if(code==='mis'){var bw=new T.Mesh(new T.CylinderGeometry(.08,.06,.08,16),M(0x8b1e33,.4));bw.position.y=.05;p.add(bw);var sp=new T.Mesh(new T.CylinderGeometry(.072,.072,.005,16),M(0xc49a5a,.6));sp.position.y=.088;p.add(sp)}
-    else if(code==='tea'){var cp=new T.Mesh(new T.CylinderGeometry(.05,.045,.1,14),M(0xe9e1d0,.5));cp.position.y=.06;p.add(cp);var t=new T.Mesh(new T.CylinderGeometry(.044,.044,.005,14),M(0x9cbf5a,.4));t.position.y=.105;p.add(t)}
-    else if(code==='ice'){var cp=new T.Mesh(new T.CylinderGeometry(.06,.04,.06,14),M(0xf3b6c4,.5));cp.position.y=.04;p.add(cp);var sc=new T.Mesh(new T.SphereGeometry(.055,12,10),M(0x9dbf63,.6));sc.position.y=.09;p.add(sc)}
+    function piece(){var g=new T.Group();g.userData.piece=1;p.add(g);return g}
+    function nig(c,x){var g=piece();g.position.x=x;var r=new T.Mesh(new T.BoxGeometry(.11,.045,.06),M(0xfafafa,.6));r.position.y=.035;g.add(r);var f=new T.Mesh(new T.BoxGeometry(.13,.022,.07),M(c,.45));f.position.y=.068;g.add(f);
+      if(code==='tam'){var nb=new T.Mesh(new T.BoxGeometry(.03,.07,.072),M(0x1d2b22,.6));nb.position.y=.05;g.add(nb)}}
+    var NC={sal:0xf28a52,tun:0xc2273a,ham:0xf2d4bf,ebi:0xf4a07a,tam:0xf2cf55};
+    if(NC[code])[-.06,.06].forEach(function(x){nig(NC[code],x)});
+    else if(code==='cal'||code==='kap'){for(var k=0;k<6;k++){var g=piece();g.position.set(-.1+(k%3)*.1,0,-.04+Math.floor(k/3)*.08);var r=new T.Mesh(new T.CylinderGeometry(.035,.035,.04,10),M(code==='cal'?0xf5efe6:0x1d2b22,.6));r.position.y=.04;g.add(r);
+      var c=new T.Mesh(new T.CylinderGeometry(.015,.015,.042,8),M(code==='cal'?0xf28a52:0x6fbf73,.5));c.position.y=.04;g.add(c)}}
+    else if(code==='mis'){var g=piece();var bw=new T.Mesh(new T.CylinderGeometry(.08,.06,.08,16),M(0x8b1e33,.4));bw.position.y=.05;g.add(bw);var sp=new T.Mesh(new T.CylinderGeometry(.072,.072,.005,16),M(0xc49a5a,.6));sp.position.y=.088;g.add(sp)}
+    else if(code==='tea'){var g=piece();var cp=new T.Mesh(new T.CylinderGeometry(.05,.045,.1,14),M(0xe9e1d0,.5));cp.position.y=.06;g.add(cp);var t=new T.Mesh(new T.CylinderGeometry(.044,.044,.005,14),M(0x9cbf5a,.4));t.position.y=.105;g.add(t)}
+    else if(code==='ice'){var g=piece();var cp=new T.Mesh(new T.CylinderGeometry(.06,.04,.06,14),M(0xf3b6c4,.5));cp.position.y=.04;g.add(cp);var sc=new T.Mesh(new T.SphereGeometry(.055,12,10),M(0x9dbf63,.6));sc.position.y=.09;g.add(sc)}
     p.traverse(function(o){if(o.material&&o.material.color&&!o.material.__lin){o.material.color.convertSRGBToLinear();o.material.__lin=1}});return p}
+  // chopsticks for the first-person bite
+  var chop=new T.Group();[-1,1].forEach(function(s){var c=new T.Mesh(new T.BoxGeometry(.008,.008,.24),M(0x6b3f26,.6));c.position.set(s*.012,0,-.12);chop.add(c)});chop.visible=false;S.add(chop);
+  function suEat(o){if(SU.eat||!o.plate)return;var pc=o.plate.children.filter(function(c){return c.userData.piece})[0];if(!pc)return;var wp=new T.Vector3();pc.getWorldPosition(wp);S.attach(pc);SU.eat={o:o,pc:pc,from:wp,t:0,sip:/mis|tea/.test(o.item[3])}}
+  var tmpV=new T.Vector3(),tmpL=new T.Vector3(),suCam=new T.Vector3();
   function suTick(dt,ts){var t=ts/1000;
     SU.bars.forEach(function(bar){var cur=bar===SU.on?SU.orders.find(function(o){return o.st!=='done'}):null,z=bar===SU.on?bar.seats[SU.seat]:0;
       bar.chefs.forEach(function(c,k){var mine=cur&&cur.st==='prep'&&Math.abs(c.position.z-z)===Math.min.apply(null,bar.chefs.map(function(cc){return Math.abs(cc.position.z-z)}));c.userData.pose(t+k,mine?'chop':'idle')});
-      if(!cur||cur.st==='queued'||cur.st==='prep')bar.server.userData.pose(t,'idle')});
-    if(!SU.on)return;var bar=SU.on,z=bar.seats[SU.seat],sp=bar.W(4.7,.045+.12,z);
-    P.root.visible=true;P.root.position.copy(sp);P.root.rotation.y=Math.PI/2;P.pose(0,0,ts,false);P.sit(1);psh.visible=false;
-    C.position.lerp(bar.W(2.9,1.85,z-1.7),Math.min(1,dt*3));look.copy(bar.W(7.3,1.2,z+1.1));C.lookAt(look);
+      if(SU.bowT>0&&bar===SU.on){SU.bowT-=dt;bar.server.userData.pose(t,'bow',1-SU.bowT/1.6)}else if(!cur||cur.st==='queued'||cur.st==='prep')bar.server.userData.pose(t,'idle');
+      var op=(bar===SU.on||bar===suNear)?1:0;bar.door_o+=(op-bar.door_o)*Math.min(1,dt*5);bar.doors[0].position.z=6.95-2.05*bar.door_o;bar.doors[1].position.z=9.05+2.05*bar.door_o});
+    if(!SU.on){chop.visible=false;return}var bar=SU.on,z=bar.seats[SU.seat],sp=bar.W(4.7,.045+.12,z);
+    P.root.position.copy(sp);P.root.rotation.y=Math.PI/2;P.pose(0,0,ts,false);P.sit(1);psh.visible=false;
+    var E_=SU.eat;
+    if(E_){P.root.visible=false;var eye=bar.W(4.78,1.52,z),pl=E_.from;suCam.lerp(eye,Math.min(1,dt*6));C.position.copy(suCam);E_.t+=dt;var k=Math.min(1,E_.t/.75);k=k*k*(3-2*k);
+      var near_=tmpV.copy(eye).lerp(pl,.38);near_.y-=.08;E_.pc.position.lerpVectors(pl,near_,k);if(E_.t>.95)E_.pc.scale.setScalar(Math.max(.01,1-(E_.t-.95)*4));
+      tmpL.copy(pl).lerp(near_,.6);C.lookAt(tmpL);chop.visible=true;chop.position.copy(E_.pc.position).add(tmpV.set(.03,.07,.02));chop.lookAt(eye);chop.rotateX(.5);
+      if(E_.t>1.25){S.remove(E_.pc);E_.o.left--;chop.visible=false;SU.eat=null;toast(E_.o.left>0?(E_.sip?'Mm, warm.':'Oishii!'):'ごちそうさま · all finished');suRender()}
+      if(E_.t<.1)toast(E_.sip?'Sipping…':'Itadakimasu!')}
+    else{P.root.visible=true;chop.visible=false;suCam.lerp(bar.W(2.9,1.85,z-1.7),Math.min(1,dt*3));C.position.copy(suCam);look.copy(bar.W(7.3,1.2,z+1.1));C.lookAt(look)}
     var o=SU.orders.find(function(o){return o.st!=='done'});if(!o)return;var s=bar.server,home=bar.srv.home,dest=new T.Vector3(3.3,.12,z+.95);o.t+=dt;
     if(o.st==='queued'){o.st='prep';o.t=0;suRender()}
     else if(o.st==='prep'&&o.t>2.6){o.st='walk';o.t=0;suRender()}
     else if(o.st==='walk'||o.st==='back'){var to=o.st==='walk'?dest:home,d=to.clone().sub(s.position),L=d.length();if(L<.05){if(o.st==='walk'){o.st='serve';o.t=0;suRender()}else{o.st='done';s.rotation.y=Math.PI;suRender()}}
       else{s.position.add(d.multiplyScalar(Math.min(1,dt*1.8/L)));s.rotation.y=Math.atan2(to.x-s.position.x,to.z-s.position.z);s.userData.pose(t,'walk')}}
-    else if(o.st==='serve'){s.rotation.y=Math.PI/2;s.userData.pose(t,o.t<1?'carry':'bow',o.t-1);if(o.t>.8&&!o.placed){o.placed=1;var pl=plateFor(o.item[3]),n=bar.plates.length;pl.position.set(5.72,1.15,z-.55+(n%4)*.37);bar.g.add(pl);bar.plates.push(pl)}
+    else if(o.st==='serve'){s.rotation.y=Math.PI/2;s.userData.pose(t,o.t<1?'carry':'bow',o.t-1);if(o.t>.8&&!o.placed){var pl=plateFor(o.item[3]),n=bar.plates.length;pl.position.set(5.72,1.15,z-.55+(n%4)*.37);bar.g.add(pl);bar.plates.push(pl);
+        o.plate=pl;o.left=pl.children.filter(function(c){return c.userData.piece}).length;o.placed=1;suRender()}
       if(o.t>2){o.st='back';o.t=0;suRender()}}}
   // trees (instanced trunks + 3-blob canopies)
   var trk=new T.InstancedMesh(new T.CylinderGeometry(.18,.26,3,7),M(0x4a3b2e,.9),trees.length),can=new T.InstancedMesh(new T.IcosahedronGeometry(1,1),M(0x56763f,.9),trees.length*3);
@@ -1579,7 +1634,13 @@ html.in-game body>*:not(#game):not(#boot):not(script):not(style):not(dialog){vis
     marks.forEach(function(m){mx.fillStyle=m.done?'#8b919b':'#D9536B';mx.beginPath();mx.arc(m.g.position.x,m.g.position.z,6/s,0,6.283);mx.fill();
       mx.fillStyle='#14161a';mx.font='700 '+(9/s)+'px sans-serif';mx.textAlign='center';mx.textBaseline='middle';mx.fillText(m.s[0]<7?m.s[0]:'✉',m.g.position.x,m.g.position.z+.5)});
     if(window.__tgt){mx.setLineDash([6/s,5/s]);mx.strokeStyle='#4FB3FF';mx.lineWidth=2.5/s;mx.beginPath();mx.moveTo(pos.x,pos.z);mx.lineTo(window.__tgt.g.position.x,window.__tgt.g.position.z);mx.stroke();mx.setLineDash([])}
-    mx.restore();mx.save();mx.translate(W/2,H/2);mx.fillStyle='#1b2030';mx.strokeStyle='#fff';mx.lineWidth=2;mx.beginPath();mx.arc(0,0,11,0,6.283);mx.fill();mx.stroke();mx.rotate(-(face-camYaw)+Math.PI);mx.fillStyle='#fff';mx.beginPath();mx.moveTo(0,-7);mx.lineTo(5,6);mx.lineTo(0,3);mx.lineTo(-5,6);mx.closePath();mx.fill();mx.restore()}
+    mx.restore();var cy=Math.cos(camYaw),sy=Math.sin(camYaw);mx.textAlign='center';mx.textBaseline='middle';
+    POIS.forEach(function(p){var dx=(p[1]-pos.x)*s,dz=(p[2]-pos.z)*s,X=W/2+dx*cy-dz*sy,Y=H/2+dx*sy+dz*cy,su=/Sushi/.test(p[0]),edge=false;
+      if(su){var m=12;if(X<m||Y<m||X>W-m||Y>H-m){edge=true;X=Math.max(m,Math.min(W-m,X));Y=Math.max(m,Math.min(H-m,Y))}}else if(X<-8||Y<-8||X>W+8||Y>H+8)return;
+      mx.lineWidth=2;if(su){mx.fillStyle='#d9536b';mx.strokeStyle='#fff';mx.beginPath();mx.arc(X,Y,8,0,6.283);mx.fill();mx.stroke();mx.fillStyle='#fff';mx.fillRect(X-4.5,Y-.5,9,3.5);mx.fillStyle='#f28a52';mx.fillRect(X-5,Y-3.5,10,3)}
+      else{mx.fillStyle='#fff';mx.strokeStyle='#2a2f45';mx.beginPath();mx.arc(X,Y,5,0,6.283);mx.fill();mx.stroke();mx.fillStyle='#7e1a2d';mx.beginPath();mx.arc(X,Y,2,0,6.283);mx.fill()}
+      if(edge)return;var lb=p[0].replace(' Sushi','');mx.font='700 9px sans-serif';mx.lineWidth=3;mx.strokeStyle='rgba(255,255,255,.92)';mx.strokeText(lb,X,Y+(su?15:12));mx.fillStyle=su?'#9e2240':'#2a2f45';mx.fillText(lb,X,Y+(su?15:12))});
+    mx.save();mx.translate(W/2,H/2);mx.fillStyle='#1b2030';mx.strokeStyle='#fff';mx.lineWidth=2;mx.beginPath();mx.arc(0,0,11,0,6.283);mx.fill();mx.stroke();mx.rotate(-(face-camYaw)+Math.PI);mx.fillStyle='#fff';mx.beginPath();mx.moveTo(0,-7);mx.lineTo(5,6);mx.lineTo(0,3);mx.lineTo(-5,6);mx.closePath();mx.fill();mx.restore()}
   // ---- cinematic ----
   var cine=null,RMo=matchMedia('(prefers-reduced-motion: reduce)').matches,cbox=$('#gCine');
   function startCine(type,d,t1,t2){cine={type:type,t:0,d:d,a0:camYaw};cbox.querySelector('b').textContent=t1;cbox.querySelector('span').textContent=t2;gm.classList.add('cine');keys={}}
