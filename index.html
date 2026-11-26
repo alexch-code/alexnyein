@@ -514,6 +514,7 @@ html.in-game main,html.in-game .hud-top,html.in-game .radar-wrap,html.in-game #s
 .gm-mapwrap{position:relative;min-width:0;min-height:0;overflow:hidden;background:#5fb1d8}
 .gm-mapwrap canvas{position:absolute;inset:0;width:100%;height:100%}
 @media (max-width:760px){.gm-mapwrap{order:1}}
+.g-hint .drift{color:#FF4FA3;font-weight:800;letter-spacing:.1em}
 </style>
 <script>(function(){var d=document.documentElement;d.classList.add('in-game','booting');setTimeout(function(){if(!window.__gOpened){d.classList.remove('in-game','booting');var b=document.getElementById('boot');if(b)b.remove()}},15000)})();</script>
 <style>html.booting,html.booting body{background:#0d0b14!important}
@@ -1264,7 +1265,7 @@ html.in-game body>*:not(#game):not(#boot):not(script):not(style):not(dialog){vis
   function carBox(c){var h=c.rotation.y,a=Math.abs(Math.sin(h)),b=Math.abs(Math.cos(h)),hx=a*2.35+b*.95,hz=b*2.35+a*.95;return[c.position.x-hx,c.position.z-hz,c.position.x+hx,c.position.z+hz]}
   function findCar(){var best=null,bd=3.4;cars.concat(parkedCars).forEach(function(c){var d=Math.hypot(c.position.x-pos.x,c.position.z-pos.z);if(d<bd){bd=d;best=c}});return best}
   function enterCar(c){var i=cars.indexOf(c);if(i>=0)cars.splice(i,1);i=parkedCars.indexOf(c);if(i>=0){parkedCars.splice(i,1);var bi=boxes.indexOf(c.userData.box);if(bi>=0)boxes.splice(bi,1)}
-    drive={car:c,v:0,h:c.rotation.y};if(c.userData.beam)c.userData.beam.visible=true;P.root.visible=false;psh.visible=false;jy=0;vy=0;vel=0;keys={};
+    drive={car:c,v:0,h:c.rotation.y,vx:0,vz:0,ls:0,sp:0,vh:c.rotation.y};if(c.userData.beam)c.userData.beam.visible=true;P.root.visible=false;psh.visible=false;jy=0;vy=0;vel=0;keys={};
     pos.x=c.position.x;pos.z=c.position.z}
   function exitCar(){if(!drive)return;var c=drive.car,h=drive.h,rx=-Math.cos(h),rz=Math.sin(h),out=null;
     [[rx*1.9,rz*1.9],[-rx*1.9,-rz*1.9],[Math.sin(h)*3.4,Math.cos(h)*3.4],[-Math.sin(h)*3.4,-Math.cos(h)*3.4]].some(function(o){var x=c.position.x+o[0],z=c.position.z+o[1];if(!blocked(x,z)){out=[x,z];return true}});
@@ -1273,17 +1274,37 @@ html.in-game body>*:not(#game):not(#boot):not(script):not(style):not(dialog){vis
   function carHit(x,z,h){var fx=Math.sin(h),fz=Math.cos(h),pts=[[0,0],[fx*1.9,fz*1.9],[-fx*1.9,-fz*1.9]];
     for(var q=0;q<pts.length;q++){var px=x+pts[q][0],pz=z+pts[q][1];for(var k=0;k<boxes.length;k++){var b=boxes[k];if(px>b[0]-.8&&px<b[2]+.8&&pz>b[1]-.8&&pz<b[3]+.8)return true}
       for(var k=0;k<cars.length;k++){var c=cars[k],av=c.userData.av,hx=(av?.95:2.35)+.8,hz=(av?2.35:.95)+.8;if(Math.abs(px-c.position.x)<hx&&Math.abs(pz-c.position.z)<hz)return true}}return false}
-  function driveTick(dt,paused){var d=drive,c=d.car,th=0,st=0;
+  // drift FX: skid marks on the road + tyre smoke
+  var SKN=260,skI=0,skT=0,skM=new T.InstancedMesh(new T.PlaneGeometry(.26,.9),new T.MeshBasicMaterial({color:0x0a0a0c,transparent:true,opacity:.5,depthWrite:false}),SKN);
+  skM.frustumCulled=false;for(var q=0;q<SKN;q++){m4.makeScale(0,0,0);skM.setMatrixAt(q,m4)}S.add(skM);
+  var smT=(function(){var c=document.createElement('canvas');c.width=c.height=64;var x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(230,226,240,.55)');g.addColorStop(1,'rgba(230,226,240,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new T.CanvasTexture(c)})();
+  var smokes=[];for(var q=0;q<36;q++){var sp_=new T.Sprite(new T.SpriteMaterial({map:smT,transparent:true,depthWrite:false,opacity:0}));sp_.visible=false;S.add(sp_);smokes.push({s:sp_,t:9})}
+  var smI=0,driftT=0,driftBest=0,eu=new T.Euler(),qq=new T.Quaternion(),vs=new T.Vector3(),one=new T.Vector3(1,1,1);
+  function skid(x,z,h){eu.set(-Math.PI/2,0,h);qq.setFromEuler(eu);vs.set(x,.075,z);m4.compose(vs,qq,one);skM.setMatrixAt(skI,m4);skI=(skI+1)%SKN;skM.instanceMatrix.needsUpdate=true}
+  function puff(x,z){var p=smokes[smI];smI=(smI+1)%smokes.length;p.t=0;p.s.visible=true;p.s.position.set(x+(Math.random()-.5)*.4,.35,z+(Math.random()-.5)*.4);p.vx=(Math.random()-.5)*.8;p.vz=(Math.random()-.5)*.8}
+  function fxTick(dt){smokes.forEach(function(p){if(p.t>1.4){p.s.visible=false;return}p.t+=dt;var k=p.t/1.4;p.s.position.y+=dt*.9;p.s.position.x+=p.vx*dt;p.s.position.z+=p.vz*dt;p.s.scale.setScalar(.8+k*3.2);p.s.material.opacity=.5*(1-k)})}
+  function driveTick(dt,paused){var d=drive,c=d.car,th=0,st=0,hb=!paused&&!!keys[' '];
     if(!paused){if(keys.w||keys.arrowup)th+=1;if(keys.s||keys.arrowdown)th-=1;if(keys.a||keys.arrowleft)st+=1;if(keys.d||keys.arrowright)st-=1;th-=jv.y;st-=jv.x}
     th=Math.max(-1,Math.min(1,th));st=Math.max(-1,Math.min(1,st));
-    if(th>0)d.v+=(d.v<0?18:9)*th*dt;else if(th<0)d.v+=(d.v>0?18:7)*th*dt;else d.v*=Math.max(0,1-dt*.9);
-    if(keys[' ']&&!paused)d.v*=Math.max(0,1-dt*4.5);
-    d.v=Math.max(-7,Math.min(24,d.v));if(Math.abs(d.v)<.05&&!th)d.v=0;
-    var grip=Math.min(1,Math.abs(d.v)/4);d.h+=st*(1.9-Math.min(.9,Math.abs(d.v)/30))*grip*dt*(d.v<0?-1:1);
-    var n=2;for(var i=0;i<n;i++){var nx=c.position.x+Math.sin(d.h)*d.v*dt/n,nz=c.position.z+Math.cos(d.h)*d.v*dt/n;
-      if(carHit(nx,nz,d.h)){d.v=-d.v*.25;break}c.position.x=nx;c.position.z=nz}
-    c.rotation.y=d.h;c.children[0]&&(c.children[0].rotation.z=-st*Math.min(.04,Math.abs(d.v)*.003));
-    pos.x=c.position.x;pos.z=c.position.z;face=d.h;vel=Math.abs(d.v)}
+    var fx=Math.sin(d.h),fz=Math.cos(d.h),fs=d.vx*fx+d.vz*fz;
+    // steering: faster yaw when the back end is loose (handbrake or already sliding)
+    var sliding=hb||Math.abs(d.ls||0)>2.2,yaw=st*(1.95-Math.min(.85,Math.abs(fs)/32))*Math.min(1,Math.abs(fs)/4)*(fs<0?-1:1)*(sliding?1.55:1);
+    d.h+=yaw*dt;
+    // re-read the same world velocity against the new heading: the difference becomes sideways slide
+    fx=Math.sin(d.h);fz=Math.cos(d.h);var rx=Math.cos(d.h),rz=-Math.sin(d.h);fs=d.vx*fx+d.vz*fz;var ls=d.vx*rx+d.vz*rz;
+    if(th>0)fs+=(fs<0?18:10.5)*th*dt;else if(th<0)fs+=(fs>0?18:7)*th*dt;else fs*=Math.max(0,1-dt*.7);
+    if(hb)fs*=Math.max(0,1-dt*1.1);
+    fs=Math.max(-7,Math.min(26,fs));if(Math.abs(fs)<.05&&!th)fs=0;
+    var grip=hb?.9:(Math.abs(ls)>3?(th>0?2.2:3.4):9);ls*=Math.exp(-grip*dt);if(Math.abs(fs)<1.5)ls*=Math.exp(-6*dt);
+    d.vx=fx*fs+rx*ls;d.vz=fz*fs+rz*ls;d.ls=ls;
+    var n=3;for(var i=0;i<n;i++){var nx=c.position.x+d.vx*dt/n,nz=c.position.z+d.vz*dt/n;
+      if(carHit(nx,nz,d.h)){d.vx*=-.25;d.vz*=-.25;driftT=0;break}c.position.x=nx;c.position.z=nz}
+    c.rotation.y=d.h;if(c.children[0])c.children[0].rotation.z=Math.max(-.07,Math.min(.07,-ls*.012-st*Math.min(.03,Math.abs(fs)*.002)));
+    var drifting=Math.abs(ls)>2.4&&Math.hypot(d.vx,d.vz)>5,braking=th<0&&fs>8;
+    if(drifting||braking){skT+=dt;if(skT>.045){skT=0;[-1,1].forEach(function(sd){var wx=c.position.x-fx*1.5+rx*.86*sd,wz=c.position.z-fz*1.5+rz*.86*sd;skid(wx,wz,d.h);if(drifting&&Math.random()<.6)puff(wx,wz)})}}
+    if(drifting){driftT+=dt;driftBest=Math.max(driftBest,driftT)}else driftT=Math.max(0,driftT-dt*3);
+    d.v=fs;d.sp=Math.hypot(d.vx,d.vz);d.vh=Math.atan2(d.vx,d.vz);d.drift=drifting;
+    pos.x=c.position.x;pos.z=c.position.z;face=d.h;vel=d.sp}
   // ---- collision ----
   function blocked(x,z){var r=.38;for(var k=0;k<boxes.length;k++){var b=boxes[k];if(x>b[0]-r&&x<b[2]+r&&z>b[1]-r&&z<b[3]+r)return true}
     for(var k=0;k<cars.length;k++){var c=cars[k],av=c.userData.av,hx=(av?.95:2.35)+r,hz=(av?2.35:.95)+r;if(Math.abs(x-c.position.x)<hx&&Math.abs(z-c.position.z)<hz)return true}return false}
@@ -1363,14 +1384,14 @@ html.in-game body>*:not(#game):not(#boot):not(script):not(style):not(dialog){vis
   function loop(ts){requestAnimationFrame(loop);if(!running)return;var dt=lt?Math.min(.05,(ts-lt)/1000):.016;lt=ts;fit();
     var paused=!!document.querySelector('dialog[open]')||!$('#gStart').hidden||!!cine||!$('#gMenu').hidden;
     var ix_=0,iz_=0;if(!paused){if(keys.w||keys.arrowup)iz_-=1;if(keys.s||keys.arrowdown)iz_+=1;if(keys.a||keys.arrowleft)ix_-=1;if(keys.d||keys.arrowright)ix_+=1;ix_+=jv.x;iz_+=jv.y}
-    if(drive){driveTick(dt,paused);ix_=iz_=0}
+    if(drive){driveTick(dt,paused);ix_=iz_=0}fxTick(dt);
     var mag=drive?0:Math.min(1,Math.hypot(ix_,iz_)),run=!drive&&(keys[' ']||Math.hypot(jv.x,jv.y)>.92),sp=mag>.05?(run?9:4)*mag:0;
     if(!drive)vel+=(sp-vel)*Math.min(1,dt*10);
     if(jy>0||vy>0){vy-=15*dt;jy=Math.max(0,jy+vy*dt);if(jy===0)vy=0}
     if(mag>.05){var ang=Math.atan2(ix_,iz_)+camYaw;var df=((ang-face+Math.PI*3)%(Math.PI*2))-Math.PI;face+=df*Math.min(1,dt*12)}
     if(!drive&&vel>.05){var nx=pos.x+Math.sin(face)*vel*dt,nz=pos.z+Math.cos(face)*vel*dt;if(!blocked(nx,pos.z))pos.x=nx;if(!blocked(pos.x,nz))pos.z=nz}
     // when moving, camera eases behind the player
-    if(vel>.5&&!drag){var behind=face+Math.PI,dy=((behind-camYaw+Math.PI*3)%(Math.PI*2))-Math.PI;camYaw+=dy*Math.min(1,dt*(drive?3:1.2))}
+    if(vel>.5&&!drag){var behind=(drive&&drive.sp>4&&drive.v>0?face+(((drive.vh-face+Math.PI*3)%(Math.PI*2))-Math.PI)*.55:face)+Math.PI,dy=((behind-camYaw+Math.PI*3)%(Math.PI*2))-Math.PI;camYaw+=dy*Math.min(1,dt*(drive?3:1.2))}
     var cdT=drive?7.2:camDist;if(!drive&&camDist<2.4)camDist=3.4;camDistS=(camDistS||camDist)+(cdT-(camDistS||camDist))*Math.min(1,dt*3);
     P.root.position.copy(pos);P.root.position.y=jy;sun.position.copy(pos).add(SUN);sun.target.position.copy(pos);sky.position.copy(C.position);P.root.rotation.y=face;BOT.tick(dt,ts);psh.position.x=pos.x;psh.position.z=pos.z;
     var rr=vel/4,amp_=.55+.3*Math.max(0,Math.min(1,rr-1)),stride=4*.82*Math.sin(amp_);ph+=dt*vel*Math.PI*2/Math.max(1,stride);P.pose(ph,rr,ts,near&&vel<.3&&!drive);if(jy>0)P.air(Math.min(1,jy/.35));psh.material.opacity=.14*Math.max(.3,1-jy);
@@ -1393,7 +1414,7 @@ html.in-game body>*:not(#game):not(#boot):not(script):not(style):not(dialog){vis
     var nx2=(window.__gMenu&&window.__gMenu.target())||nextStop();ui.cnt.textContent=Math.min(done,6)+' / 6';
     nearCar=drive?null:findCar();
     if(near){ui.hint.hidden=false;ui.hint.innerHTML='<kbd>E</kbd> '+(near.s[0]===7?'Contact cchat studio':'Open: '+near.s[1])}
-    else if(drive){ui.hint.hidden=false;ui.hint.innerHTML='<kbd>F</kbd> Get out <span class="hs">W/S drive · A/D steer · Space brake</span>'}
+    else if(drive){ui.hint.hidden=false;ui.hint.innerHTML=driftT>.35?'<b class="drift">DRIFT '+driftT.toFixed(1)+'s</b><span class="hs">best '+driftBest.toFixed(1)+'s</span>':'<kbd>F</kbd> Get out <span class="hs">W/S drive · A/D steer · Space handbrake to drift</span>'}
     else if(nearCar){ui.hint.hidden=false;ui.hint.innerHTML='<kbd>F</kbd> Get in the car'}else ui.hint.hidden=true;
     if(nx2){var tx=nx2.g.position.x-pos.x,tz=nx2.g.position.z-pos.z,dd=Math.round(Math.hypot(tx,tz)),brg=Math.atan2(tx,tz);gpsA.visible=!cine&&dd>5;gpsA.position.x=pos.x+Math.sin(brg)*1.3;gpsA.position.z=pos.z+Math.cos(brg)*1.3;gpsA.rotation.y=brg+Math.PI;gpsA.material.opacity=.65+Math.sin(ts/220)*.25;
       var q0=new T.Vector3(pos.x,0,pos.z).project(C),q1=new T.Vector3(pos.x+Math.sin(brg)*3,0,pos.z+Math.cos(brg)*3).project(C),rel=-Math.atan2(q1.x-q0.x,q1.y-q0.y)*180/Math.PI;ui.obj.innerHTML='<i class="g-dir" style="transform:rotate('+(-rel).toFixed(1)+'deg)"><svg viewBox=\"0 0 20 20\" width=\"16\" height=\"16\"><path d=\"M10 2 L17 17 L10 13 L3 17 Z\" fill=\"#fff\"/></svg></i><div><small>'+((window.__gMenu&&window.__gMenu.target())?'Waypoint':'Next stop')+'</small><b>'+(nx2.s[0]<7?'0'+nx2.s[0]+' · ':'')+nx2.s[1]+'</b><span>'+dd+' m · follow the pink arrow</span></div>';window.__tgt=nx2}
@@ -1599,7 +1620,7 @@ html.in-game body>*:not(#game):not(#boot):not(script):not(style):not(dialog){vis
       skills:function(){return{t:'cchat studio builds attention, digital experiences and systems. Six capabilities:<ul class="cl">'+SKILLS.map(function(s){return'<li><b>'+E(s[0])+'</b><span>'+s[2].map(E).join(' · ')+'</span></li>'}).join('')+'</ul>',acts:[['menu','Open Skills','skills']],chips:['Packages & prices','Diamonds Flash results','How do you work?']}},
       contact:function(){return{t:'cchat studio is <b class="ok">taking new projects</b>. The fastest way is email — or a DM on Instagram.<br><span class="mono">'+MAIL+' · @cchatstudio</span>',acts:[['team','Chat with the team'],['mail','Email cchat studio','Project enquiry'],['link','Instagram',IG]]}},
       about:function(){return{t:'<b>cchat studio</b> is a creative marketing studio in New York. We handle social content, photo and video, paid ads, Shopify websites and custom internal tools — the city you are walking through is our Diamonds Flash NYC project.',chips:['What do you do?','Diamonds Flash results','Contact']}},
-      controls:function(){return{t:'<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · <kbd>Space</kbd> run · <kbd>Shift</kbd> jump · <kbd>F</kbd> get in or out of a car · drag to look · <kbd>E</kbd> open a stop · <kbd>M</kbd> browse the work. On phones, use the joystick and the pink button. Or just ask me to take you somewhere.',chips:['Take me to a stop']}},
+      controls:function(){return{t:'<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · <kbd>Space</kbd> run · <kbd>Shift</kbd> jump · <kbd>F</kbd> get in or out of a car · <kbd>Space</kbd> in a car = handbrake drift · drag to look · <kbd>E</kbd> open a stop · <kbd>M</kbd> browse the work. On phones, use the joystick and the pink button. Or just ask me to take you somewhere.',chips:['Take me to a stop']}},
       timeline:function(){return{t:'Timelines depend on scope, so the studio confirms one after a quick conversation about the project. Monthly packages start as soon as onboarding is done.',acts:[['mail','Ask about timing','Timeline question']]}},
       bot:function(){return{t:'I\'m an automated assistant — I answer from what\'s on this site. For anything I can\'t answer, email cchat studio and the team will reply.',acts:[['mail','Email cchat studio','Question from the website']]}},
       hello:function(){return{t:'Hi! I\'m ALX from cchat studio. You\'re the client here, so ask me about services, prices or the Diamonds Flash results — or say <i>"take me to the website stop"</i> and I\'ll set a waypoint.',chips:['What do you do?','Packages & prices','Diamonds Flash results','Take me to a stop','Talk to the team']}},
